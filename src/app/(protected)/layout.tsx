@@ -5,7 +5,7 @@ import { ModeToggle } from "@/components/theme/mode-toggle";
 export default function Layout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <SidebarProvider
