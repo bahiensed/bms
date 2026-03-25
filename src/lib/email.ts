@@ -17,6 +17,21 @@ export async function sendVerificationEmail(to: string, token: string): Promise<
   })
 }
 
+export async function sendEmailChangeEmail(to: string, token: string): Promise<void> {
+  const url = `${process.env.APP_URL}/verify-email-change?token=${token}`
+  await resend.emails.send({
+    from: "no-reply@rohling.com.br",
+    to,
+    subject: "Confirme seu novo e-mail",
+    html: `
+      <p>Recebemos uma solicitação para alterar o e-mail da sua conta.</p>
+      <p>Clique no link abaixo para confirmar o novo endereço (expira em 1h):</p>
+      <p><a href="${url}">Confirmar novo e-mail</a></p>
+      <p>Se você não solicitou isso, ignore este e-mail.</p>
+    `,
+  })
+}
+
 export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
   const url = `${process.env.APP_URL}/reset-password?token=${token}`
   await resend.emails.send({

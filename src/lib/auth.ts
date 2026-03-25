@@ -26,6 +26,25 @@ export const ResetPasswordSchema = z.object({
     .regex(/[^a-zA-Z0-9]/, "Deve conter ao menos um caractere especial"),
 })
 
+export const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Senha atual obrigatória"),
+  newPassword: z
+    .string()
+    .min(8, "Senha deve ter ao menos 8 caracteres")
+    .regex(/[a-zA-Z]/, "Deve conter ao menos uma letra")
+    .regex(/[0-9]/, "Deve conter ao menos um número")
+    .regex(/[^a-zA-Z0-9]/, "Deve conter ao menos um caractere especial"),
+})
+
+export const ChangeEmailSchema = z.object({
+  newEmail: z.string().email("E-mail inválido"),
+  currentPassword: z.string().min(1, "Senha obrigatória"),
+})
+
+export const DeleteAccountSchema = z.object({
+  currentPassword: z.string().min(1, "Senha obrigatória"),
+})
+
 export type SignInInput = z.infer<typeof SignInSchema>
 export type SignUpInput = z.infer<typeof SignUpSchema>
 export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>

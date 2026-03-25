@@ -28,6 +28,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const match = await bcrypt.compare(password, user.password)
         if (!match) return null
 
+        if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { failedLoginAttempts: 0, lockedUntil: null },
+          })
+        }
+
         return {
           id: user.id,
           email: user.email,

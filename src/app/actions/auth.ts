@@ -7,12 +7,14 @@ import { randomBytes } from "crypto"
 import { z, flattenError } from "zod"
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { SignInSchema, SignUpSchema, ResetPasswordSchema } from "@/lib/auth"
-import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email"
+import { SignInSchema, SignUpSchema, ResetPasswordSchema, ChangePasswordSchema, ChangeEmailSchema, DeleteAccountSchema } from "@/lib/auth"
+import { sendVerificationEmail, sendPasswordResetEmail, sendEmailChangeEmail } from "@/lib/email"
+import { verifySession } from "@/lib/dal"
 
 type AuthState = {
   errors?: Record<string, string[] | undefined>
   error?: string
+  success?: string
 } | undefined
 
 export async function login(
@@ -27,12 +29,17 @@ export async function login(
   const validated = SignInSchema.safeParse(data)
   if (!validated.success) return { error: "Dados inválidos" }
 
-  // Pré-check: bloqueia com mensagem específica se e-mail não verificado
-  const existingUser = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { email: validated.data.email },
-    select: { emailVerified: true },
+    select: { id: true, emailVerified: true, lockedUntil: true, failedLoginAttempts: true },
   })
-  if (existingUser && existingUser.emailVerified === null) {
+
+  if (user?.lockedUntil && user.lockedUntil > new Date()) {
+    const minutes = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000)
+    return { error: `Conta bloqueada temporariamente. Tente novamente em ${minutes} minuto(s).` }
+  }
+
+  if (user && user.emailVerified === null) {
     return { error: "Verifique seu e-mail antes de entrar. Cheque sua caixa de entrada." }
   }
 
@@ -40,6 +47,17 @@ export async function login(
     await signIn("credentials", { ...validated.data, redirectTo: "/profile" })
   } catch (error) {
     if (error instanceof AuthError) {
+      if (user) {
+        const base = user.lockedUntil && user.lockedUntil < new Date() ? 0 : user.failedLoginAttempts
+        const newCount = base + 1
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            failedLoginAttempts: newCount,
+            lockedUntil: newCount >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null,
+          },
+        })
+      }
       return { error: "E-mail ou senha incorretos" }
     }
     throw error // re-throw para o redirect funcionar
@@ -157,6 +175,107 @@ export async function resetPassword(
   ])
 
   redirect("/sign-in?reset=true")
+}
+
+export async function changePassword(
+  _prevState: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const session = await verifySession()
+
+  const validated = ChangePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+  })
+  if (!validated.success) return { errors: flattenError(validated.error).fieldErrors }
+
+  const userId = session.user!.id!
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  })
+  if (!user) return { error: "Usuário não encontrado" }
+
+  const match = await bcrypt.compare(validated.data.currentPassword, user.password)
+  if (!match) return { errors: { currentPassword: ["Senha atual incorreta"] } }
+
+  const same = await bcrypt.compare(validated.data.newPassword, user.password)
+  if (same) return { errors: { newPassword: ["A nova senha deve ser diferente da atual"] } }
+
+  const hashed = await bcrypt.hash(validated.data.newPassword, 12)
+  await prisma.user.update({ where: { id: userId }, data: { password: hashed } })
+
+  return { success: "Senha alterada com sucesso." }
+}
+
+export async function requestEmailChange(
+  _prevState: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const session = await verifySession()
+
+  const validated = ChangeEmailSchema.safeParse({
+    newEmail: formData.get("newEmail"),
+    currentPassword: formData.get("currentPassword"),
+  })
+  if (!validated.success) return { errors: flattenError(validated.error).fieldErrors }
+
+  const userId = session.user!.id!
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, password: true },
+  })
+  if (!user) return { error: "Usuário não encontrado" }
+
+  if (validated.data.newEmail === user.email) {
+    return { errors: { newEmail: ["O novo e-mail deve ser diferente do atual"] } }
+  }
+
+  const match = await bcrypt.compare(validated.data.currentPassword, user.password)
+  if (!match) return { errors: { currentPassword: ["Senha incorreta"] } }
+
+  const existing = await prisma.user.findUnique({ where: { email: validated.data.newEmail } })
+  if (existing) return { errors: { newEmail: ["Este e-mail já está em uso"] } }
+
+  await prisma.emailChangeToken.deleteMany({ where: { userId } })
+
+  const token = randomBytes(32).toString("hex")
+  await prisma.emailChangeToken.create({
+    data: {
+      token,
+      userId,
+      newEmail: validated.data.newEmail,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    },
+  })
+
+  await sendEmailChangeEmail(validated.data.newEmail, token)
+
+  return { success: "Link de confirmação enviado para o novo e-mail." }
+}
+
+export async function deleteAccount(
+  _prevState: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const session = await verifySession()
+
+  const validated = DeleteAccountSchema.safeParse({ currentPassword: formData.get("currentPassword") })
+  if (!validated.success) return { errors: flattenError(validated.error).fieldErrors }
+
+  const userId = session.user!.id!
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  })
+  if (!user) return { error: "Usuário não encontrado" }
+
+  const match = await bcrypt.compare(validated.data.currentPassword, user.password)
+  if (!match) return { errors: { currentPassword: ["Senha incorreta"] } }
+
+  await prisma.user.delete({ where: { id: userId } })
+
+  await signOut({ redirectTo: "/" })
 }
 
 export async function logout(): Promise<void> {
