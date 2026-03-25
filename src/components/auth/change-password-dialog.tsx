@@ -18,7 +18,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { changePassword } from "@/app/actions/auth"
+import { changePassword } from "@/actions/auth"
 
 export function ChangePasswordDialog() {
   const [open, setOpen] = useState(false)
@@ -49,7 +49,7 @@ export function ChangePasswordDialog() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cp-currentPassword">Senha atual</Label>
+            <Label htmlFor="cp-currentPassword">Senha atual:</Label>
             <InputGroup aria-invalid={!!state?.errors?.currentPassword}>
               <InputGroupInput
                 id="cp-currentPassword"
@@ -73,7 +73,7 @@ export function ChangePasswordDialog() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cp-newPassword">Nova senha</Label>
+            <Label htmlFor="cp-newPassword">Nova senha:</Label>
             <InputGroup aria-invalid={!!state?.errors?.newPassword}>
               <InputGroupInput
                 id="cp-newPassword"

@@ -18,7 +18,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { deleteAccount } from "@/app/actions/auth"
+import { deleteAccount } from "@/actions/auth"
 
 export function DeleteAccountDialog() {
   const [open, setOpen] = useState(false)
@@ -47,7 +47,7 @@ export function DeleteAccountDialog() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="da-currentPassword">Senha atual</Label>
+            <Label htmlFor="da-currentPassword">Senha atual:</Label>
             <InputGroup aria-invalid={!!state?.errors?.currentPassword}>
               <InputGroupInput
                 id="da-currentPassword"

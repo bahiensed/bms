@@ -19,7 +19,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { requestEmailChange } from "@/app/actions/auth"
+import { requestEmailChange } from "@/actions/auth"
 
 export function ChangeEmailDialog() {
   const [open, setOpen] = useState(false)
@@ -51,12 +51,12 @@ export function ChangeEmailDialog() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="ce-newEmail">Novo e-mail</Label>
+            <Label htmlFor="ce-newEmail">Novo e-mail:</Label>
             <Input
               id="ce-newEmail"
               name="newEmail"
               type="email"
-              placeholder="novo@exemplo.com"
+              placeholder="novo@email.com"
               autoComplete="email"
               aria-invalid={!!state?.errors?.newEmail}
             />
@@ -66,7 +66,7 @@ export function ChangeEmailDialog() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="ce-currentPassword">Senha atual</Label>
+            <Label htmlFor="ce-currentPassword">Senha atual:</Label>
             <InputGroup aria-invalid={!!state?.errors?.currentPassword}>
               <InputGroupInput
                 id="ce-currentPassword"

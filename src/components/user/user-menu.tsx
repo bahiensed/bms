@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { logout } from "@/app/actions/auth"
+import { logout } from "@/actions/auth"
 
 interface UserMenuProps {
   name?: string | null
