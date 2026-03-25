@@ -44,6 +44,12 @@ export default async function LandingPageLayout({
       </div>
 
       <main className="flex-1 overflow-y-auto p-4">{children}</main>
+
+      <footer className="border-t py-4 px-6 text-center text-xs text-muted-foreground">
+        <Link href="/terms" className="underline-offset-4 hover:underline">Termos de Uso</Link>
+        {" · "}
+        <Link href="/privacy" className="underline-offset-4 hover:underline">Política de Privacidade</Link>
+      </footer>
     </div>
   )
 }

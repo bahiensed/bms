@@ -5,6 +5,7 @@ import '@/styles/globals.css'
 
 import { ThemeProvider } from '@/components/theme/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { CookieConsent } from '@/components/cookie-consent'
 
 export const metadata: Metadata = {
   title: "B2C Boilerplate",
@@ -31,6 +32,7 @@ export default function RootLayout({
         >
           <TooltipProvider>
             {children}
+            <CookieConsent />
           </TooltipProvider>
         </ThemeProvider>
       </body>

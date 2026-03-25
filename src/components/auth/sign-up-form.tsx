@@ -101,6 +101,12 @@ export function SignUpForm() {
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Criando conta…" : "Criar conta"}
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Ao criar uma conta, você concorda com nossos{" "}
+            <Link href="/terms" className="underline underline-offset-4 hover:no-underline">Termos de Uso</Link>
+            {" "}e{" "}
+            <Link href="/privacy" className="underline underline-offset-4 hover:no-underline">Política de Privacidade</Link>.
+          </p>
           <p className="text-sm text-muted-foreground text-center">
             Já tem conta?{" "}
             <Link href="/sign-in" className="text-foreground underline underline-offset-4 hover:no-underline">
