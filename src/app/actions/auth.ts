@@ -44,7 +44,7 @@ export async function login(
   }
 
   try {
-    await signIn("credentials", { ...validated.data, redirectTo: "/profile" })
+    await signIn("credentials", { ...validated.data, redirectTo: "/dashboard" })
   } catch (error) {
     if (error instanceof AuthError) {
       if (user) {

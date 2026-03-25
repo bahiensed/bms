@@ -11,7 +11,7 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user
       const pathname = nextUrl.pathname
 
-      const isProtected = ["/profile", "/content"].some((r) =>
+      const isProtected = ["/profile", "/content", "/dashboard"].some((r) =>
         pathname.startsWith(r)
       )
       const isAuthRoute = ["/sign-in", "/sign-up"].some((r) =>
@@ -20,7 +20,7 @@ export const authConfig = {
 
       if (isProtected && !isLoggedIn) return false
       if (isAuthRoute && isLoggedIn) {
-        return Response.redirect(new URL("/profile", nextUrl))
+        return Response.redirect(new URL("/dashboard", nextUrl))
       }
 
       return true
