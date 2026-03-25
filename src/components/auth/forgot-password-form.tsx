@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { forgotPassword } from "@/app/actions/auth"
+import { forgotPassword } from "@/actions/auth"
 
 export function ForgotPasswordForm() {
   const [state, dispatch, isPending] = useActionState(forgotPassword, undefined)
@@ -34,18 +34,18 @@ export function ForgotPasswordForm() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email">E-mail:</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="voce@exemplo.com"
+              placeholder="seu@email.com"
               autoComplete="email"
             />
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3">
+        <CardFooter className="mt-6 flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Enviando…" : "Enviar link"}
           </Button>

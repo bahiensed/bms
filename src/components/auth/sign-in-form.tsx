@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { login } from "@/app/actions/auth"
+import { login } from "@/actions/auth"
 
 export function SignInForm() {
   const [state, dispatch, isPending] = useActionState(login, undefined)
@@ -25,19 +25,19 @@ export function SignInForm() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email">E-mail:</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="voce@exemplo.com"
+              placeholder="seu@email.com"
               autoComplete="email"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password">Senha:</Label>
               <Link
                 href="/forgot-password"
                 className="text-xs text-muted-foreground underline underline-offset-4 hover:no-underline"
@@ -54,7 +54,7 @@ export function SignInForm() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3">
+        <CardFooter className="mt-6 flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Entrando…" : "Entrar"}
           </Button>

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
-import { signup } from "@/app/actions/auth"
+import { signup } from "@/actions/auth"
 
 export function SignUpForm() {
   const [state, dispatch, isPending] = useActionState(signup, undefined)
@@ -29,11 +29,11 @@ export function SignUpForm() {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="firstName">Nome</Label>
+              <Label htmlFor="firstName">Nome:</Label>
               <Input
                 id="firstName"
                 name="firstName"
-                placeholder="João"
+                placeholder="Ada"
                 autoComplete="given-name"
                 aria-invalid={!!state?.errors?.firstName}
               />
@@ -43,11 +43,11 @@ export function SignUpForm() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="lastName">Sobrenome</Label>
+              <Label htmlFor="lastName">Sobrenome:</Label>
               <Input
                 id="lastName"
                 name="lastName"
-                placeholder="Silva"
+                placeholder="Lovelace"
                 autoComplete="family-name"
                 aria-invalid={!!state?.errors?.lastName}
               />
@@ -58,12 +58,12 @@ export function SignUpForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email">E-mail:</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="voce@exemplo.com"
+              placeholder="seu@email.com"
               autoComplete="email"
               aria-invalid={!!state?.errors?.email}
             />
@@ -73,7 +73,7 @@ export function SignUpForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password">Senha:</Label>
             <InputGroup aria-invalid={!!state?.errors?.password}>
               <InputGroupInput
                 id="password"
@@ -97,15 +97,15 @@ export function SignUpForm() {
           </div>
         </CardContent>
 
-        <CardFooter className="mt-2 flex flex-col gap-3">
+        <CardFooter className="mt-6 flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Criando conta…" : "Criar conta"}
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Ao criar uma conta, você concorda com nossos{" "}
-            <Link href="/terms" className="underline underline-offset-4 hover:no-underline">Termos de Uso</Link>
-            {" "}e{" "}
-            <Link href="/privacy" className="underline underline-offset-4 hover:no-underline">Política de Privacidade</Link>.
+            Ao criar uma conta, você concorda com nossa{" "}
+            <Link href="/privacy" className="underline underline-offset-4 hover:no-underline">Política de Privacidade</Link>
+            {" "}e nossos{" "}
+            <Link href="/terms" className="underline underline-offset-4 hover:no-underline">Termos de Uso</Link>. 
           </p>
           <p className="text-sm text-muted-foreground text-center">
             Já tem conta?{" "}

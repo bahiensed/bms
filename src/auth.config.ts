@@ -14,7 +14,7 @@ export const authConfig = {
       const isProtected = ["/profile", "/content", "/dashboard"].some((r) =>
         pathname.startsWith(r)
       )
-      const isAuthRoute = ["/sign-in", "/sign-up"].some((r) =>
+      const isAuthRoute = ["/sign-in", "/sign-up", "/forgot-password"].some((r) =>
         pathname.startsWith(r)
       )
 

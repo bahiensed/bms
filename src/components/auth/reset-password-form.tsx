@@ -18,7 +18,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { resetPassword } from "@/app/actions/auth"
+import { resetPassword } from "@/actions/auth"
 
 interface Props {
   token: string
@@ -44,7 +44,7 @@ export function ResetPasswordForm({ token }: Props) {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Nova senha</Label>
+            <Label htmlFor="password">Nova senha:</Label>
             <InputGroup aria-invalid={!!state?.errors?.password}>
               <InputGroupInput
                 id="password"
@@ -68,7 +68,7 @@ export function ResetPasswordForm({ token }: Props) {
           </div>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className="mt-6">
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Salvando…" : "Salvar nova senha"}
           </Button>
