@@ -1,0 +1,29 @@
+import type { NextAuthConfig } from "next-auth"
+
+// Edge-safe config — sem imports de banco de dados
+export const authConfig = {
+  pages: {
+    signIn: "/sign-in",
+  },
+  providers: [],
+  callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user
+      const pathname = nextUrl.pathname
+
+      const isProtected = ["/profile", "/content"].some((r) =>
+        pathname.startsWith(r)
+      )
+      const isAuthRoute = ["/sign-in", "/sign-up"].some((r) =>
+        pathname.startsWith(r)
+      )
+
+      if (isProtected && !isLoggedIn) return false
+      if (isAuthRoute && isLoggedIn) {
+        return Response.redirect(new URL("/profile", nextUrl))
+      }
+
+      return true
+    },
+  },
+} satisfies NextAuthConfig

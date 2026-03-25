@@ -7,8 +7,8 @@ import { ThemeProvider } from '@/components/theme/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 export const metadata: Metadata = {
-  title: "Basic Boilerplate",
-  description: "Basic Boilerplate",
+  title: "B2C Boilerplate",
+  description: "Business to Consumer Boilerplate",
 }
 
 export default function RootLayout({
