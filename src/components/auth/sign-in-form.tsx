@@ -1,0 +1,71 @@
+"use client"
+
+import { useActionState } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { login } from "@/app/actions/auth"
+
+export function SignInForm() {
+  const [state, dispatch, isPending] = useActionState(login, undefined)
+
+  return (
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Entrar</CardTitle>
+        <CardDescription>Digite seu e-mail e senha para acessar sua conta.</CardDescription>
+      </CardHeader>
+
+      <form action={dispatch}>
+        <CardContent className="flex flex-col gap-4">
+          {state?.error && (
+            <p className="text-sm text-destructive">{state.error}</p>
+          )}
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="email">E-mail</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="voce@exemplo.com"
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Senha</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:no-underline"
+              >
+                Esqueceu a senha?
+              </Link>
+            </div>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+            />
+          </div>
+        </CardContent>
+
+        <CardFooter className="flex flex-col gap-3">
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Entrando…" : "Entrar"}
+          </Button>
+          <p className="text-sm text-muted-foreground text-center">
+            Não tem conta?{" "}
+            <Link href="/sign-up" className="text-foreground underline underline-offset-4 hover:no-underline">
+              Criar conta
+            </Link>
+          </p>
+        </CardFooter>
+      </form>
+    </Card>
+  )
+}
