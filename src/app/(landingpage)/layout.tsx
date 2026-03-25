@@ -1,54 +1,66 @@
 import Link from "next/link"
 import { auth } from "@/auth"
-import { ModeToggle } from "@/components/theme/mode-toggle"
-import { SearchInput } from "@/components/search/search-input"
+import { getCurrentYear } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { UserMenu } from "@/components/user/user-menu"
+import { SearchInput } from "@/components/search/search-input"
+import { ModeToggle } from "@/components/theme/mode-toggle"
 
-export default async function LandingPageLayout({
+export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   const session = await auth()
+  const currentYear = getCurrentYear()
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex border-b items-center justify-between p-2">
+      <div className="flex border-b items-center justify-between px-4 py-2">
         B2C Boilerplate
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-4 items-center">
           <SearchInput />
           <ModeToggle />
           {session ? (
-            <>
-              <Button asChild>
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-              <UserMenu
-                image={session.user?.image}
-                name={session.user?.name}
-                email={session.user?.email}
-              />
-            </>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
           ) : (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="outline" asChild>
                 <Link href="/sign-in">Entrar</Link>
               </Button>
-              <Button asChild>
-                <Link href="/sign-up">Crie uma conta grátis</Link>
+              <Button variant="default" asChild>
+                <Link href="/sign-up">Crie uma Conta Grátis</Link>
               </Button>
             </>
           )}
         </div>
       </div>
 
-      <main className="flex-1 overflow-y-auto p-4">{children}</main>
+      <main className="flex-1 overflow-y-auto p-4">
+        {children}
+      </main>
 
-      <footer className="border-t py-4 px-6 text-center text-xs text-muted-foreground">
-        <Link href="/terms" className="underline-offset-4 hover:underline">Termos de Uso</Link>
-        {" · "}
-        <Link href="/privacy" className="underline-offset-4 hover:underline">Política de Privacidade</Link>
+      <footer className="border-t flex flex-col gap-2 p-4 text-center text-muted-foreground text-xs">
+        <div>
+          <Link href="/privacy" className="underline-offset-4 hover:underline">
+            Política de Privacidade
+          </Link>
+
+          {" | "}
+
+          <Link href="/terms" className="underline-offset-4 hover:underline">
+            Termos de Uso
+          </Link>
+        </div>
+
+        <div>
+          © &nbsp;
+          <Link href="/privacy" className="underline-offset-4 hover:underline">
+            Bahien.se
+          </Link>
+          , {currentYear}
+        </div>
       </footer>
     </div>
   )
