@@ -12,7 +12,8 @@ export const SignUpSchema = z.object({
   password: z
     .string()
     .min(8, "Senha deve ter ao menos 8 caracteres")
-    .regex(/[a-zA-Z]/, "Deve conter ao menos uma letra")
+    .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
+    .regex(/[a-z]/, "Deve conter ao menos uma letra minúscula")
     .regex(/[0-9]/, "Deve conter ao menos um número")
     .regex(/[^a-zA-Z0-9]/, "Deve conter ao menos um caractere especial"),
 })
@@ -21,7 +22,8 @@ export const ResetPasswordSchema = z.object({
   password: z
     .string()
     .min(8, "Senha deve ter ao menos 8 caracteres")
-    .regex(/[a-zA-Z]/, "Deve conter ao menos uma letra")
+    .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
+    .regex(/[a-z]/, "Deve conter ao menos uma letra minúscula")
     .regex(/[0-9]/, "Deve conter ao menos um número")
     .regex(/[^a-zA-Z0-9]/, "Deve conter ao menos um caractere especial"),
 })
@@ -31,7 +33,8 @@ export const ChangePasswordSchema = z.object({
   newPassword: z
     .string()
     .min(8, "Senha deve ter ao menos 8 caracteres")
-    .regex(/[a-zA-Z]/, "Deve conter ao menos uma letra")
+    .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
+    .regex(/[a-z]/, "Deve conter ao menos uma letra minúscula")
     .regex(/[0-9]/, "Deve conter ao menos um número")
     .regex(/[^a-zA-Z0-9]/, "Deve conter ao menos um caractere especial"),
 })
