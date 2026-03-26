@@ -32,6 +32,19 @@ export async function sendEmailChangeEmail(to: string, token: string): Promise<v
   })
 }
 
+export async function sendAccountDeletionEmail(to: string): Promise<void> {
+  await resend.emails.send({
+    from: "no-reply@rohling.com.br",
+    to,
+    subject: "Sua conta foi excluída",
+    html: `
+      <p>Sua conta foi excluída com sucesso.</p>
+      <p>Sentiremos muito a sua falta. Se quiser voltar algum dia, estaremos aqui.</p>
+      <p>Se você não solicitou a exclusão da sua conta, entre em contato conosco imediatamente.</p>
+    `,
+  })
+}
+
 export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
   const url = `${process.env.APP_URL}/reset-password?token=${token}`
   await resend.emails.send({

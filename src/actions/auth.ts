@@ -8,7 +8,7 @@ import { z, flattenError } from "zod"
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { SignInSchema, SignUpSchema, ResetPasswordSchema, ChangePasswordSchema, ChangeEmailSchema, DeleteAccountSchema } from "@/lib/auth"
-import { sendVerificationEmail, sendPasswordResetEmail, sendEmailChangeEmail } from "@/lib/email"
+import { sendVerificationEmail, sendPasswordResetEmail, sendEmailChangeEmail, sendAccountDeletionEmail } from "@/lib/email"
 import { verifySession } from "@/lib/dal"
 
 type AuthState = {
@@ -266,13 +266,14 @@ export async function deleteAccount(
   const userId = session.user!.id!
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { password: true },
+    select: { email: true, password: true },
   })
   if (!user) return { error: "Usuário não encontrado" }
 
   const match = await bcrypt.compare(validated.data.currentPassword, user.password)
   if (!match) return { errors: { currentPassword: ["Senha incorreta"] } }
 
+  await sendAccountDeletionEmail(user.email)
   await prisma.user.delete({ where: { id: userId } })
 
   await signOut({ redirectTo: "/" })
