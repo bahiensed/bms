@@ -1,9 +1,10 @@
 'use client'
 
-import Link from "next/link"
-import { items } from "@/components/sidebar/menu-items"
-import { SquareChevronDown } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { items } from '@/components/sidebar/menu-items'
+import { SquareChevronDown } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   Sidebar,
   SidebarContent,
@@ -15,14 +16,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
 
 export function AppSidebar() {
+  const pathname = usePathname()
+
   return (
     <Sidebar>
       <SidebarHeader />
       <SidebarContent>
-
         <Collapsible className="group/collapsible" defaultOpen>
           <SidebarGroup>
             <SidebarGroupLabel asChild>
@@ -36,7 +38,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                   {items.map((item) => (
                     <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton asChild isActive={pathname === item.url}>
                         <Link href={item.url}>
                           <item.icon />
                           <span>{item.name}</span>
@@ -49,7 +51,6 @@ export function AppSidebar() {
             </CollapsibleContent>
           </SidebarGroup>
         </Collapsible>
-
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>
