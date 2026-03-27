@@ -1,6 +1,7 @@
 import { verifySession } from '@/lib/dal'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/sidebar/app-sidebar'
+import { AppBreadcrumb } from '@/components/breadcrumb/breadcrumb'
 import { SearchInput } from '@/components/search/search-input'
 import { ModeToggle } from '@/components/theme/mode-toggle'
 import { UserMenu } from '@/components/user/user-menu'
@@ -24,7 +25,10 @@ export default async function ProtectPagesLayout({
     <AppSidebar />
         <div className="flex flex-col w-full min-h-screen">
           <div className="flex border-b items-center justify-between px-4 py-2">
-            <SidebarTrigger />
+            <div className="flex items-center gap-2">
+              <SidebarTrigger />
+              <AppBreadcrumb />
+            </div>
             <div className="flex gap-4 items-center">
               <SearchInput />
               <ModeToggle />
