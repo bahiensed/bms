@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { useState, useActionState } from "react"
-import { Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { useState, useActionState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -11,14 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@/components/ui/input-group"
-import { deleteAccount } from "@/actions/auth"
+} from '@/components/ui/input-group'
+import { deleteAccount } from '@/actions/auth'
 
 export function DeleteAccountDialog() {
   const [open, setOpen] = useState(false)

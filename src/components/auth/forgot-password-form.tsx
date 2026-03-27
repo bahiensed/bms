@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { useActionState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useActionState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
@@ -12,8 +12,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { forgotPassword } from "@/actions/auth"
+} from '@/components/ui/card'
+import { forgotPassword } from '@/actions/auth'
 
 export function ForgotPasswordForm() {
   const [state, dispatch, isPending] = useActionState(forgotPassword, undefined)

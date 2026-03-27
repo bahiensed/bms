@@ -5,7 +5,7 @@ import '@/styles/globals.css'
 
 import { ThemeProvider } from '@/components/theme/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { CookieConsent } from '@/components/cookie-consent'
+import { CookieConsent } from '@/components/cookies/cookie-consent'
 
 export const metadata: Metadata = {
   title: "B2C Boilerplate",

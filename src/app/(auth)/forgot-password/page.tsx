@@ -1,14 +1,7 @@
-import Link from "next/link"
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { ForgotPasswordForm } from '@/components/auth/forgot-password-form'
 
 interface Props {
   searchParams: Promise<{ sent?: string }>
@@ -28,7 +21,7 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Verifique sua caixa de entrada. O link expira em 1 hora.
+            Verifique sua caixa de entrada. O link expira em uma hora.
           </p>
         </CardContent>
         <CardFooter>

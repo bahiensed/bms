@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation"
-import { ResetPasswordForm } from "@/components/auth/reset-password-form"
+import { redirect } from 'next/navigation'
+import { ResetPasswordForm } from '@/components/auth/reset-password-form'
 
 interface Props {
   searchParams: Promise<{ token?: string }>

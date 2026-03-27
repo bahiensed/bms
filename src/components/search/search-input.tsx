@@ -2,9 +2,9 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/ui/input-group"
-import { Kbd } from "@/components/ui/kbd"
-import { SearchIcon } from "lucide-react"
+} from '@/components/ui/input-group'
+import { SearchIcon } from 'lucide-react'
+import { Kbd } from '@/components/ui/kbd'
 
 export function SearchInput() {
   return (

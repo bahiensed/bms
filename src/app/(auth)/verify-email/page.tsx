@@ -1,14 +1,7 @@
-import Link from "next/link"
-import { prisma } from "@/lib/prisma"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface Props {
   searchParams: Promise<{ token?: string }>
@@ -17,7 +10,6 @@ interface Props {
 export default async function VerifyEmailPage({ searchParams }: Props) {
   const { token } = await searchParams
 
-  // Sem token — usuário chegou aqui após o sign-up
   if (!token) {
     return (
       <Card className="w-full max-w-sm">

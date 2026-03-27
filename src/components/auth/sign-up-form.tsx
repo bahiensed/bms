@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import { useState, useActionState } from "react"
-import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
-import { signup } from "@/actions/auth"
+import { useState, useActionState } from 'react'
+import Link from 'next/link'
+import { Eye, EyeOff } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
+import { signup } from '@/actions/auth'
 
 export function SignUpForm() {
   const [state, dispatch, isPending] = useActionState(signup, undefined)
