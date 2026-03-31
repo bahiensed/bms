@@ -11,10 +11,12 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user
       const pathname = nextUrl.pathname
 
-      const isProtected = ["/profile", "/content", "/dashboard"].some((r) =>
-        pathname.startsWith(r)
-      )
-      const isAuthRoute = ["/sign-in", "/sign-up", "/forgot-password"].some((r) =>
+      const isProtected = [
+        "/profile", "/dashboard", "/users", "/company",
+        "/suppliers", "/licenses", "/products", "/services", "/customers",
+        "/purchasing", "/inventory", "/sales", "/finance",
+      ].some((r) => pathname.startsWith(r))
+      const isAuthRoute = ["/sign-in", "/setup", "/forgot-password"].some((r) =>
         pathname.startsWith(r)
       )
 

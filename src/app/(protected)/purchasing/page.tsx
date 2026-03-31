@@ -1,7 +1,7 @@
-export default function Content() {
+export default function PurchasingPage() {
   return (
     <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-      Content
+      Purchasing
     </h1>
   )
 }

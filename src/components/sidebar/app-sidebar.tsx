@@ -2,8 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { items } from '@/components/sidebar/menu-items'
-import { SquareChevronDown } from 'lucide-react'
+import {
+  dashboard,
+  system,
+  records,
+  purchasing,
+  inventory,
+  sales,
+  finance,
+} from '@/components/sidebar/menu-items'
+import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   Sidebar,
@@ -18,6 +26,15 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
+const groups = [
+  { label: 'System', items: system },
+  { label: 'Records', items: records },
+  { label: 'Purchasing', items: purchasing },
+  { label: 'Inventory', items: inventory },
+  { label: 'Sales', items: sales },
+  { label: 'Finance', items: finance },
+]
+
 export function AppSidebar() {
   const pathname = usePathname()
 
@@ -25,32 +42,51 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader />
       <SidebarContent>
-        <Collapsible className="group/collapsible" defaultOpen>
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger>
-                Menu
-                <SquareChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {items.map((item) => (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton asChild isActive={pathname === item.url}>
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
+        {/* Dashboard — standalone, above all groups */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === dashboard.url}>
+                  <Link href={dashboard.url}>
+                    <dashboard.icon />
+                    <span>{dashboard.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Grouped sections */}
+        {groups.map((group) => (
+          <Collapsible key={group.label} className="group/collapsible" defaultOpen={false}>
+            <SidebarGroup>
+              <SidebarGroupLabel asChild>
+                <CollapsibleTrigger>
+                  {group.label}
+                  <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => (
+                      <SidebarMenuItem key={item.name}>
+                        <SidebarMenuButton asChild isActive={pathname === item.url}>
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.name}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        ))}
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>

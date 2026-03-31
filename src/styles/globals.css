@@ -128,3 +128,7 @@
     @apply font-sans;
   }
 }
+
+[data-sidebar="content"] {
+  scrollbar-width: thin;
+}

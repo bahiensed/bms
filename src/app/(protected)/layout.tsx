@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/sidebar/app-sidebar'
 import { AppBreadcrumb } from '@/components/breadcrumb/breadcrumb'
 import { SearchInput } from '@/components/search/search-input'
 import { ModeToggle } from '@/components/theme/mode-toggle'
-import { UserMenu } from '@/components/user/user-menu'
+import { UserMenu } from '@/components/users/user-menu'
 
 export default async function ProtectPagesLayout({
   children,
