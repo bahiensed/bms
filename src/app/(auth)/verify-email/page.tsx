@@ -19,7 +19,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Clique no link que enviamos para confirmar sua conta. O link expira em 24 horas.
+            Clique no link que enviamos para confirmar. O link expira em 1 hora.
           </p>
         </CardContent>
         <CardFooter>
@@ -31,14 +31,13 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     )
   }
 
-  const record = await prisma.emailVerificationToken.findUnique({
+  const record = await prisma.emailToken.findUnique({
     where: { token },
   })
 
-  // Token inválido ou expirado
   if (!record || record.expiresAt < new Date()) {
     if (record) {
-      await prisma.emailVerificationToken.delete({ where: { token } })
+      await prisma.emailToken.delete({ where: { token } })
     }
     return (
       <Card className="w-full max-w-sm">
@@ -50,25 +49,54 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Crie uma nova conta para receber um novo link de confirmação.
+            Solicite um novo link na página de perfil.
           </p>
         </CardContent>
         <CardFooter>
           <Button asChild variant="outline" className="w-full">
-            <Link href="/sign-up">Criar conta</Link>
+            <Link href="/sign-in">Ir para o login</Link>
           </Button>
         </CardFooter>
       </Card>
     )
   }
 
-  // Token válido — marca usuário como verificado e apaga o token atomicamente
+  if (record.type === 'CHANGE') {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: record.userId },
+        data: { email: record.newEmail!, emailVerified: new Date() },
+      }),
+      prisma.emailToken.delete({ where: { token } }),
+    ])
+
+    return (
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>E-mail alterado!</CardTitle>
+          <CardDescription>Seu e-mail foi atualizado com sucesso.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Faça login novamente com seu novo endereço de e-mail.
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button asChild className="w-full">
+            <Link href="/sign-in">Entrar</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    )
+  }
+
+  // VERIFICATION
   await prisma.$transaction([
     prisma.user.update({
       where: { id: record.userId },
       data: { emailVerified: new Date() },
     }),
-    prisma.emailVerificationToken.delete({ where: { token } }),
+    prisma.emailToken.delete({ where: { token } }),
   ])
 
   return (

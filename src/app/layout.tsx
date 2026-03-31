@@ -5,11 +5,12 @@ import '@/styles/globals.css'
 
 import { ThemeProvider } from '@/components/theme/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { Toaster } from "@/components/ui/sonner"
 import { CookieConsent } from '@/components/cookies/cookie-consent'
 
 export const metadata: Metadata = {
-  title: "B2C Boilerplate",
-  description: "Business to Consumer Boilerplate",
+  title: "BMS Boilerplate",
+  description: "Business Management System Boilerplate",
 }
 
 export default function RootLayout({
@@ -32,6 +33,7 @@ export default function RootLayout({
         >
           <TooltipProvider>
             {children}
+            <Toaster />
             <CookieConsent />
           </TooltipProvider>
         </ThemeProvider>

@@ -18,7 +18,7 @@ export async function sendVerificationEmail(to: string, token: string): Promise<
 }
 
 export async function sendEmailChangeEmail(to: string, token: string): Promise<void> {
-  const url = `${process.env.APP_URL}/verify-email-change?token=${token}`
+  const url = `${process.env.APP_URL}/verify-email?token=${token}`
   await resend.emails.send({
     from: "no-reply@rohling.com.br",
     to,
@@ -41,6 +41,21 @@ export async function sendAccountDeletionEmail(to: string): Promise<void> {
       <p>Sua conta foi excluída com sucesso.</p>
       <p>Sentiremos muito a sua falta. Se quiser voltar algum dia, estaremos aqui.</p>
       <p>Se você não solicitou a exclusão da sua conta, entre em contato conosco imediatamente.</p>
+    `,
+  })
+}
+
+export async function sendWelcomeEmail(to: string, token: string): Promise<void> {
+  const url = `${process.env.APP_URL}/reset-password?token=${token}`
+  await resend.emails.send({
+    from: "no-reply@rohling.com.br",
+    to,
+    subject: "Bem-vindo! Configure seu acesso",
+    html: `
+      <p>Sua conta foi criada por um administrador.</p>
+      <p>Clique no link abaixo para criar sua senha e acessar o sistema (expira em 72h):</p>
+      <p><a href="${url}">Configurar senha</a></p>
+      <p>Se você não esperava este e-mail, entre em contato com o administrador.</p>
     `,
   })
 }

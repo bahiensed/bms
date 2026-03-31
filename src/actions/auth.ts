@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation"
 import { AuthError } from "next-auth"
 import bcrypt from "bcryptjs"
-import { randomBytes } from "crypto"
 import { z, flattenError } from "zod"
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { SignInSchema, SignUpSchema, ResetPasswordSchema, ChangePasswordSchema, ChangeEmailSchema, DeleteAccountSchema } from "@/lib/auth"
-import { sendVerificationEmail, sendPasswordResetEmail, sendEmailChangeEmail, sendAccountDeletionEmail } from "@/lib/email"
+import { SignInSchema, SetupSchema, ResetPasswordSchema, ChangePasswordSchema, ChangeEmailSchema, DeleteAccountSchema } from "@/lib/auth"
+import { sendPasswordResetEmail, sendEmailChangeEmail, sendAccountDeletionEmail } from "@/lib/email"
 import { verifySession } from "@/lib/dal"
+import { randomBytes } from "crypto"
 
 type AuthState = {
   errors?: Record<string, string[] | undefined>
@@ -64,10 +64,13 @@ export async function login(
   }
 }
 
-export async function signup(
+export async function setupSuperAdmin(
   _prevState: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
+  const count = await prisma.user.count()
+  if (count > 0) return { error: "O sistema já foi configurado." }
+
   const data = {
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
@@ -75,46 +78,23 @@ export async function signup(
     password: formData.get("password"),
   }
 
-  const validated = SignUpSchema.safeParse(data)
+  const validated = SetupSchema.safeParse(data)
   if (!validated.success) {
     return { errors: flattenError(validated.error).fieldErrors }
   }
 
-  const { firstName, lastName, email, password } = validated.data
+  const { password, ...rest } = validated.data
 
-  const existing = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true, emailVerified: true },
-  })
-
-  if (existing) {
-    if (existing.emailVerified !== null) {
-      return { error: "Este e-mail já está em uso" }
-    }
-    // Conta não verificada: apaga tokens antigos e reenvía novo link
-    await prisma.emailVerificationToken.deleteMany({ where: { userId: existing.id } })
-    const token = randomBytes(32).toString("hex")
-    await prisma.emailVerificationToken.create({
-      data: { token, userId: existing.id, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) },
-    })
-    await sendVerificationEmail(email, token)
-    redirect("/verify-email")
-  }
+  const existing = await prisma.user.findUnique({ where: { email: rest.email }, select: { id: true } })
+  if (existing) return { error: "Este e-mail já está em uso" }
 
   const hashedPassword = await bcrypt.hash(password, 12)
 
-  const user = await prisma.user.create({
-    data: { firstName, lastName, email, password: hashedPassword },
-    select: { id: true },
+  await prisma.user.create({
+    data: { ...rest, password: hashedPassword, role: "SUPER_ADMIN", emailVerified: new Date() },
   })
 
-  const token = randomBytes(32).toString("hex")
-  await prisma.emailVerificationToken.create({
-    data: { token, userId: user.id, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) },
-  })
-  await sendVerificationEmail(email, token)
-
-  redirect("/verify-email")
+  redirect("/sign-in")
 }
 
 export async function forgotPassword(
@@ -194,7 +174,7 @@ export async function changePassword(
     where: { id: userId },
     select: { password: true },
   })
-  if (!user) return { error: "Usuário não encontrado" }
+  if (!user?.password) return { error: "Usuário não encontrado" }
 
   const match = await bcrypt.compare(validated.data.currentPassword, user.password)
   if (!match) return { errors: { currentPassword: ["Senha atual incorreta"] } }
@@ -225,7 +205,7 @@ export async function requestEmailChange(
     where: { id: userId },
     select: { email: true, password: true },
   })
-  if (!user) return { error: "Usuário não encontrado" }
+  if (!user?.password) return { error: "Usuário não encontrado" }
 
   if (validated.data.newEmail === user.email) {
     return { errors: { newEmail: ["O novo e-mail deve ser diferente do atual"] } }
@@ -237,12 +217,13 @@ export async function requestEmailChange(
   const existing = await prisma.user.findUnique({ where: { email: validated.data.newEmail } })
   if (existing) return { errors: { newEmail: ["Este e-mail já está em uso"] } }
 
-  await prisma.emailChangeToken.deleteMany({ where: { userId } })
+  await prisma.emailToken.deleteMany({ where: { userId, type: 'CHANGE' } })
 
   const token = randomBytes(32).toString("hex")
-  await prisma.emailChangeToken.create({
+  await prisma.emailToken.create({
     data: {
       token,
+      type: 'CHANGE',
       userId,
       newEmail: validated.data.newEmail,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
@@ -268,7 +249,7 @@ export async function deleteAccount(
     where: { id: userId },
     select: { email: true, password: true },
   })
-  if (!user) return { error: "Usuário não encontrado" }
+  if (!user?.password) return { error: "Usuário não encontrado" }
 
   const match = await bcrypt.compare(validated.data.currentPassword, user.password)
   if (!match) return { errors: { currentPassword: ["Senha incorreta"] } }

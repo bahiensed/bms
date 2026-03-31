@@ -29,9 +29,6 @@ export default async function Layout({
               <Button variant="outline" asChild>
                 <Link href="/sign-in">Entrar</Link>
               </Button>
-              <Button variant="default" asChild>
-                <Link href="/sign-up">Crie uma Conta Grátis</Link>
-              </Button>
             </>
           )}
         </div>

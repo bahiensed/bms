@@ -1,24 +1,23 @@
 'use client'
 
 import { useState, useActionState } from 'react'
-import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
-import { signup } from '@/actions/auth'
+import { setupSuperAdmin } from '@/actions/auth'
 
-export function SignUpForm() {
-  const [state, dispatch, isPending] = useActionState(signup, undefined)
+export function SetupForm() {
+  const [state, dispatch, isPending] = useActionState(setupSuperAdmin, undefined)
   const [showPassword, setShowPassword] = useState(false)
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Criar conta</CardTitle>
-        <CardDescription>Preencha os dados abaixo para criar sua conta.</CardDescription>
+        <CardTitle>Configuração inicial</CardTitle>
+        <CardDescription>Crie a conta do administrador principal do sistema.</CardDescription>
       </CardHeader>
 
       <form action={dispatch}>
@@ -63,7 +62,7 @@ export function SignUpForm() {
               id="email"
               name="email"
               type="email"
-              placeholder="seu@email.com"
+              placeholder="admin@empresa.com"
               autoComplete="email"
               aria-invalid={!!state?.errors?.email}
             />
@@ -97,22 +96,10 @@ export function SignUpForm() {
           </div>
         </CardContent>
 
-        <CardFooter className="mt-6 flex flex-col gap-3">
+        <CardFooter className="mt-6">
           <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Criando conta…" : "Criar conta"}
+            {isPending ? "Configurando…" : "Criar administrador"}
           </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Ao criar uma conta, você concorda com nossa{" "}
-            <Link href="/privacy" className="underline underline-offset-4 hover:no-underline">Política de Privacidade</Link>
-            {" "}e nossos{" "}
-            <Link href="/terms" className="underline underline-offset-4 hover:no-underline">Termos de Uso</Link>. 
-          </p>
-          <p className="text-sm text-muted-foreground text-center">
-            Já tem conta?{" "}
-            <Link href="/sign-in" className="text-foreground underline underline-offset-4 hover:no-underline">
-              Entrar
-            </Link>
-          </p>
         </CardFooter>
       </form>
     </Card>

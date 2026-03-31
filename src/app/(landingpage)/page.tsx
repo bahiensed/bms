@@ -1,7 +1,8 @@
-export default function Content() {
-  return (
-    <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-      Landing Page
-    </h1>
-  )
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+
+export default async function LandingPage() {
+  const count = await prisma.user.count()
+  if (count === 0) redirect('/setup')
+  redirect('/sign-in')
 }

@@ -58,12 +58,6 @@ export function SignInForm() {
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Entrando…" : "Entrar"}
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
-            Não tem conta?{" "}
-            <Link href="/sign-up" className="text-foreground underline underline-offset-4 hover:no-underline">
-              Criar conta
-            </Link>
-          </p>
         </CardFooter>
       </form>
     </Card>
