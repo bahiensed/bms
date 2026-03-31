@@ -1,0 +1,121 @@
+'use client'
+
+import { useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { userResolver, userDefaultValues, ASSIGNABLE_ROLES, type UserFormValues } from '@/schemas/user.schema'
+import { createUser, updateUser } from '@/actions/user.actions'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+const ROLE_LABELS: Record<string, string> = {
+  OWNER:     'Owner',
+  ADMIN:     'Admin',
+  COMERCIAL: 'Comercial',
+  FINANCE:   'Finance',
+  USER:      'User',
+}
+
+interface UserFormProps {
+  id?: string
+  defaultValues?: UserFormValues
+}
+
+export function UserForm({ id, defaultValues }: UserFormProps) {
+  const isEditing = !!id
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = useForm<UserFormValues>({
+    resolver: userResolver,
+    defaultValues: defaultValues ?? userDefaultValues,
+  })
+
+  async function onSubmit(data: UserFormValues) {
+    setServerError(null)
+    const result = isEditing ? await updateUser(id, data) : await createUser(data)
+    if (result?.error) setServerError(result.error)
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 max-w-lg">
+      {serverError && (
+        <p className="text-sm text-destructive">{serverError}</p>
+      )}
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="firstName">Nome</Label>
+          <Input id="firstName" {...register('firstName')} autoComplete="off" />
+          {errors.firstName && <p className="text-xs text-destructive">{errors.firstName.message}</p>}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="lastName">Sobrenome</Label>
+          <Input id="lastName" {...register('lastName')} autoComplete="off" />
+          {errors.lastName && <p className="text-xs text-destructive">{errors.lastName.message}</p>}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="email">E-mail</Label>
+        <Input id="email" type="email" {...register('email')} autoComplete="off" />
+        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label>Perfil</Label>
+        <Controller
+          name="role"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um perfil" />
+              </SelectTrigger>
+              <SelectContent>
+                {ASSIGNABLE_ROLES.map((role) => (
+                  <SelectItem key={role} value={role}>{ROLE_LABELS[role]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.role && <p className="text-xs text-destructive">{errors.role.message}</p>}
+      </div>
+
+      {isEditing && (
+        <div className="flex items-center gap-3">
+          <Controller
+            name="isActive"
+            control={control}
+            render={({ field }) => (
+              <Switch
+                id="isActive"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+          <Label htmlFor="isActive" className="cursor-pointer">Usuário ativo</Label>
+        </div>
+      )}
+
+      <div className="flex gap-2 pt-2">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar usuário'}
+        </Button>
+        <Button type="button" variant="outline" onClick={() => history.back()}>
+          Cancelar
+        </Button>
+      </div>
+    </form>
+  )
+}
