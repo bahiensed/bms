@@ -1,0 +1,23 @@
+import Link from 'next/link'
+import { getSuppliers } from '@/actions/supplier.actions'
+import { SuppliersDataTable } from '@/components/suppliers/suppliers-data-table'
+import { Button } from '@/components/ui/button'
+
+export default async function SuppliersPage() {
+  const suppliers = await getSuppliers()
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+          Fornecedores
+        </h1>
+        <Button asChild>
+          <Link href="/suppliers/new">Novo fornecedor</Link>
+        </Button>
+      </div>
+
+      <SuppliersDataTable data={suppliers} />
+    </div>
+  )
+}
