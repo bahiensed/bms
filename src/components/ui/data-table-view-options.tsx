@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-const COLUMN_LABELS: Record<string, string> = {
+const DEFAULT_COLUMN_LABELS: Record<string, string> = {
   name:      'Nome',
   email:     'E-mail',
   role:      'Role',
@@ -23,8 +23,10 @@ const COLUMN_LABELS: Record<string, string> = {
 
 export function DataTableViewOptions<TData>({
   table,
+  columnLabels,
 }: {
   table: Table<TData>
+  columnLabels?: Record<string, string>
 }) {
   return (
     <DropdownMenu>
@@ -46,7 +48,7 @@ export function DataTableViewOptions<TData>({
               checked={col.getIsVisible()}
               onCheckedChange={(value) => col.toggleVisibility(!!value)}
             >
-              {COLUMN_LABELS[col.id] ?? col.id}
+              {(columnLabels ?? DEFAULT_COLUMN_LABELS)[col.id] ?? col.id}
             </DropdownMenuCheckboxItem>
           ))}
       </DropdownMenuContent>

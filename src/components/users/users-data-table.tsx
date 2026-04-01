@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from './data-table'
+import { DataTable } from '@/components/ui/data-table'
 import { getColumns, type UserRow } from './columns'
 
 interface UsersDataTableProps {
@@ -10,5 +10,11 @@ interface UsersDataTableProps {
 
 export function UsersDataTable({ currentUserId, data }: UsersDataTableProps) {
   const columns = getColumns(currentUserId)
-  return <DataTable columns={columns} data={data} />
+  return (
+    <DataTable
+      columns={columns}
+      data={data}
+      emptyMessage="Nenhum usuário encontrado."
+    />
+  )
 }

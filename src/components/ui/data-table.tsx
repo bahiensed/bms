@@ -28,11 +28,19 @@ import { DataTableViewOptions } from '@/components/ui/data-table-view-options'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  filterColumn?: string
+  filterPlaceholder?: string
+  emptyMessage?: string
+  columnLabels?: Record<string, string>
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterColumn = 'name',
+  filterPlaceholder = 'Filtrar por nome…',
+  emptyMessage = 'Nenhum registro encontrado.',
+  columnLabels,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -59,12 +67,12 @@ export function DataTable<TData, TValue>({
     <div className="w-full space-y-4">
       <div className="flex items-center gap-2">
         <Input
-          placeholder="Filtrar por nome…"
-          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-          onChange={(e) => table.getColumn('name')?.setFilterValue(e.target.value)}
+          placeholder={filterPlaceholder}
+          value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ''}
+          onChange={(e) => table.getColumn(filterColumn)?.setFilterValue(e.target.value)}
           className="max-w-sm"
         />
-        <DataTableViewOptions table={table} />
+        <DataTableViewOptions table={table} columnLabels={columnLabels} />
       </div>
 
       <div className="overflow-hidden rounded-md border">
@@ -96,7 +104,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Nenhum usuário encontrado.
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             )}

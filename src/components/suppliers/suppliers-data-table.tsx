@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from './data-table'
+import { DataTable } from '@/components/ui/data-table'
 import { supplierColumns, type SupplierRow } from './columns'
 
 interface SuppliersDataTableProps {
@@ -8,5 +8,11 @@ interface SuppliersDataTableProps {
 }
 
 export function SuppliersDataTable({ data }: SuppliersDataTableProps) {
-  return <DataTable columns={supplierColumns} data={data} />
+  return (
+    <DataTable
+      columns={supplierColumns}
+      data={data}
+      emptyMessage="Nenhum fornecedor encontrado."
+    />
+  )
 }

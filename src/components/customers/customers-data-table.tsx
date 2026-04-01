@@ -1,6 +1,6 @@
 'use client'
 
-import { DataTable } from './data-table'
+import { DataTable } from '@/components/ui/data-table'
 import { customerColumns, type CustomerRow } from './columns'
 
 interface CustomersDataTableProps {
@@ -8,5 +8,11 @@ interface CustomersDataTableProps {
 }
 
 export function CustomersDataTable({ data }: CustomersDataTableProps) {
-  return <DataTable columns={customerColumns} data={data} />
+  return (
+    <DataTable
+      columns={customerColumns}
+      data={data}
+      emptyMessage="Nenhum cliente encontrado."
+    />
+  )
 }
