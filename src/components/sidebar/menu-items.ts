@@ -61,11 +61,6 @@ export const records = [
 
 export const purchasing = [
   {
-    name: 'QR Codes',
-    url: '/purchasing',
-    icon: ShoppingBagIcon,
-  },
-  {
     name: 'Products',
     url: '/purchasing/products',
     icon: BoxIcon,
@@ -78,11 +73,6 @@ export const purchasing = [
 ]
 
 export const inventory = [
-  {
-    name: 'Licenses',
-    url: '/inventory/licenses',
-    icon: QrCodeIcon,
-  },
   {
     name: 'Products',
     url: '/inventory/products',
