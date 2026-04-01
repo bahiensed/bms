@@ -6,8 +6,13 @@ import { customerResolver, customerDefaultValues, type CustomerFormValues } from
 import { createCustomer, updateCustomer } from '@/actions/customer.actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
 
 interface CustomerFormProps {
   id?: string
@@ -18,10 +23,12 @@ export function CustomerForm({ id, defaultValues }: CustomerFormProps) {
   const isEditing = !!id
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = useForm<CustomerFormValues>({
+  const form = useForm<CustomerFormValues>({
     resolver: customerResolver,
     defaultValues: defaultValues ?? customerDefaultValues,
   })
+
+  const { control, handleSubmit, formState: { isSubmitting } } = form
 
   async function onSubmit(data: CustomerFormValues) {
     setServerError(null)
@@ -30,56 +37,74 @@ export function CustomerForm({ id, defaultValues }: CustomerFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 max-w-lg">
-      {serverError && (
-        <p className="text-sm text-destructive">{serverError}</p>
-      )}
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-lg">
+      {serverError && <FieldError>{serverError}</FieldError>}
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="firstName">Nome</Label>
-          <Input id="firstName" {...register('firstName')} autoComplete="off" />
-          {errors.firstName && <p className="text-xs text-destructive">{errors.firstName.message}</p>}
+      <FieldGroup>
+        <div className="grid grid-cols-2 gap-3">
+          <Controller
+            name="firstName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel>Nome</FieldLabel>
+                <Input {...field} autoComplete="off" aria-invalid={fieldState.invalid} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="lastName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel>Sobrenome</FieldLabel>
+                <Input {...field} autoComplete="off" aria-invalid={fieldState.invalid} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="lastName">Sobrenome</Label>
-          <Input id="lastName" {...register('lastName')} autoComplete="off" />
-          {errors.lastName && <p className="text-xs text-destructive">{errors.lastName.message}</p>}
-        </div>
-      </div>
+        <Controller
+          name="email"
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel>E-mail</FieldLabel>
+              <Input {...field} type="email" autoComplete="off" aria-invalid={fieldState.invalid} />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">E-mail</Label>
-        <Input id="email" type="email" {...register('email')} autoComplete="off" />
-        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-      </div>
-
-      {isEditing && (
-        <div className="flex items-center gap-3">
+        {isEditing && (
           <Controller
             name="isActive"
             control={control}
             render={({ field }) => (
-              <Switch
-                id="isActive"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
+              <Field orientation="horizontal">
+                <Switch
+                  id="isActive"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+                <FieldLabel htmlFor="isActive" className="cursor-pointer">Cliente ativo</FieldLabel>
+              </Field>
             )}
           />
-          <Label htmlFor="isActive" className="cursor-pointer">Cliente ativo</Label>
-        </div>
-      )}
+        )}
+      </FieldGroup>
 
-      <div className="flex gap-2 pt-2">
+      <Field orientation="horizontal">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar cliente'}
         </Button>
-        <Button type="button" variant="outline" onClick={() => history.back()}>
-          Cancelar
+        <Button type="button" variant="outline" onClick={() => form.reset()}>
+          Limpar
         </Button>
-      </div>
+      </Field>
     </form>
   )
 }
