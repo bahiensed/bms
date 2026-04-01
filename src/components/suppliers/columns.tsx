@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 import { useTransition } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -15,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import { toggleSupplierActive, deleteSupplier } from '@/actions/supplier.actions'
 
 export type SupplierRow = {
@@ -46,17 +48,22 @@ function ActionsCell({ row }: { row: { original: SupplierRow } }) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => startTransition(async () => { await toggleSupplierActive(supplier.id) })}
+          onClick={() => startTransition(async () => {
+            const result = await toggleSupplierActive(supplier.id)
+            if (result?.error) toast.error(result.error)
+          })}
         >
           {supplier.isActive ? 'Desativar' : 'Reativar'}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive"
-          onClick={() => startTransition(async () => { await deleteSupplier(supplier.id) })}
-        >
-          Excluir
-        </DropdownMenuItem>
+        <ConfirmDeleteDialog
+          isPending={isPending}
+          description={`O fornecedor "${supplier.firstName} ${supplier.lastName}" será excluído permanentemente.`}
+          onConfirm={() => startTransition(async () => {
+            const result = await deleteSupplier(supplier.id)
+            if (result?.error) toast.error(result.error)
+          })}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )

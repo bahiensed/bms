@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 import { useTransition } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -15,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import { toggleCustomerActive, deleteCustomer } from '@/actions/customer.actions'
 
 export type CustomerRow = {
@@ -46,17 +48,22 @@ function ActionsCell({ row }: { row: { original: CustomerRow } }) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => startTransition(async () => { await toggleCustomerActive(customer.id) })}
+          onClick={() => startTransition(async () => {
+            const result = await toggleCustomerActive(customer.id)
+            if (result?.error) toast.error(result.error)
+          })}
         >
           {customer.isActive ? 'Desativar' : 'Reativar'}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive"
-          onClick={() => startTransition(async () => { await deleteCustomer(customer.id) })}
-        >
-          Excluir
-        </DropdownMenuItem>
+        <ConfirmDeleteDialog
+          isPending={isPending}
+          description={`O cliente "${customer.firstName} ${customer.lastName}" será excluído permanentemente.`}
+          onConfirm={() => startTransition(async () => {
+            const result = await deleteCustomer(customer.id)
+            if (result?.error) toast.error(result.error)
+          })}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )

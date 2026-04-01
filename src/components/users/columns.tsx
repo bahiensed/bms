@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
+import { useTransition } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -14,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
 import { toggleUserActive, deleteUser, resendWelcomeEmail } from '@/actions/user.actions'
-import { useTransition } from 'react'
 
 export type UserRow = {
   id: string
@@ -58,23 +60,31 @@ function ActionsCell({ row, currentUserId }: { row: { original: UserRow }; curre
         <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={isSelf}
-          onClick={() => startTransition(async () => { await toggleUserActive(user.id) })}
+          onClick={() => startTransition(async () => {
+            const result = await toggleUserActive(user.id)
+            if (result?.error) toast.error(result.error)
+          })}
         >
           {user.isActive ? 'Desativar' : 'Reativar'}
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => startTransition(async () => { await resendWelcomeEmail(user.id) })}
+          onClick={() => startTransition(async () => {
+            const result = await resendWelcomeEmail(user.id)
+            if (result?.error) toast.error(result.error)
+            else toast.success('E-mail reenviado com sucesso.')
+          })}
         >
           Reenviar e-mail
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:text-destructive"
-          disabled={isSelf}
-          onClick={() => startTransition(async () => { await deleteUser(user.id) })}
-        >
-          Excluir
-        </DropdownMenuItem>
+        <ConfirmDeleteDialog
+          isPending={isPending}
+          description={`O usuário "${user.firstName} ${user.lastName}" será excluído permanentemente.`}
+          onConfirm={() => startTransition(async () => {
+            const result = await deleteUser(user.id)
+            if (result?.error) toast.error(result.error)
+          })}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )
