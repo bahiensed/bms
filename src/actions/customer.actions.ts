@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { verifySession } from '@/lib/dal'
 import { customerSchema, type CustomerFormValues } from '@/schemas/customer.schema'
@@ -16,12 +17,16 @@ export async function createCustomer(data: CustomerFormValues): Promise<ActionEr
 
   const { firstName, lastName, email } = validated.data
 
-  const existing = await prisma.customer.findUnique({ where: { email }, select: { id: true } })
-  if (existing) return { error: 'Este e-mail já está em uso' }
-
-  await prisma.customer.create({
-    data: { firstName, lastName, email },
-  })
+  try {
+    await prisma.customer.create({
+      data: { firstName, lastName, email },
+    })
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return { error: 'Este e-mail já está em uso' }
+    }
+    throw e
+  }
 
   revalidatePath('/customers')
   redirect('/customers')
@@ -33,13 +38,20 @@ export async function updateCustomer(id: string, data: CustomerFormValues): Prom
   const validated = customerSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  const existing = await prisma.customer.findUnique({ where: { email: validated.data.email }, select: { id: true } })
-  if (existing && existing.id !== id) return { error: 'Este e-mail já está em uso' }
+  try {
+    const existing = await prisma.customer.findUnique({ where: { email: validated.data.email }, select: { id: true } })
+    if (existing && existing.id !== id) return { error: 'Este e-mail já está em uso' }
 
-  await prisma.customer.update({
-    where: { id },
-    data: validated.data,
-  })
+    await prisma.customer.update({
+      where: { id },
+      data: validated.data,
+    })
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      return { error: 'Cliente não encontrado.' }
+    }
+    throw e
+  }
 
   revalidatePath('/customers')
   redirect('/customers')
@@ -48,7 +60,15 @@ export async function updateCustomer(id: string, data: CustomerFormValues): Prom
 export async function deleteCustomer(id: string): Promise<ActionError | void> {
   await verifySession()
 
-  await prisma.customer.delete({ where: { id } })
+  try {
+    await prisma.customer.delete({ where: { id } })
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      return { error: 'Cliente não encontrado.' }
+    }
+    throw e
+  }
+
   revalidatePath('/customers')
 }
 
@@ -60,35 +80,4 @@ export async function toggleCustomerActive(id: string): Promise<ActionError | vo
 
   await prisma.customer.update({ where: { id }, data: { isActive: !customer.isActive } })
   revalidatePath('/customers')
-}
-
-export async function getCustomers() {
-  await verifySession()
-
-  return prisma.customer.findMany({
-    select: {
-      id:        true,
-      firstName: true,
-      lastName:  true,
-      email:     true,
-      isActive:  true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: 'asc' },
-  })
-}
-
-export async function getCustomer(id: string) {
-  await verifySession()
-
-  return prisma.customer.findUnique({
-    where: { id },
-    select: {
-      id:        true,
-      firstName: true,
-      lastName:  true,
-      email:     true,
-      isActive:  true,
-    },
-  })
 }
