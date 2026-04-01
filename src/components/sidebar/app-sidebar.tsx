@@ -60,7 +60,7 @@ export function AppSidebar() {
 
         {/* Grouped sections */}
         {groups.map((group) => (
-          <Collapsible key={group.label} className="group/collapsible" defaultOpen={false}>
+          <Collapsible key={group.label} className="group/collapsible" defaultOpen={group.items.some((item) => pathname.startsWith(item.url))}>
             <SidebarGroup>
               <SidebarGroupLabel asChild>
                 <CollapsibleTrigger>
