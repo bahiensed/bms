@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getCustomer } from '@/actions/customer.actions'
+import { getCustomer } from '@/queries/customers'
 import { CustomerForm } from '@/components/customers/customer-form'
 
 export default async function EditCustomerPage({ params }: { params: Promise<{ id: string }> }) {

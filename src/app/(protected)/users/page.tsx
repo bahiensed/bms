@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { verifySession } from '@/lib/dal'
-import { getUsers } from '@/actions/user.actions'
+import { getUsers } from '@/queries/users'
 import { UsersDataTable } from '@/components/users/users-data-table'
 import { Button } from '@/components/ui/button'
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getCustomers } from '@/actions/customer.actions'
+import { getCustomers } from '@/queries/customers'
 import { CustomersDataTable } from '@/components/customers/customers-data-table'
 import { Button } from '@/components/ui/button'
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getSuppliers } from '@/actions/supplier.actions'
+import { getSuppliers } from '@/queries/suppliers'
 import { SuppliersDataTable } from '@/components/suppliers/suppliers-data-table'
 import { Button } from '@/components/ui/button'
 

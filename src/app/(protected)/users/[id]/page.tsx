@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getUser } from '@/actions/user.actions'
+import { getUser } from '@/queries/users'
 import { UserForm } from '@/components/users/user-form'
 
 export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {

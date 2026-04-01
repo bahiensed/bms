@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getSupplier } from '@/actions/supplier.actions'
+import { getSupplier } from '@/queries/suppliers'
 import { SupplierForm } from '@/components/suppliers/supplier-form'
 
 export default async function EditSupplierPage({ params }: { params: Promise<{ id: string }> }) {
