@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,6 +6,8 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
 
 enum Role {
   SUPER_ADMIN
@@ -21,30 +18,17 @@ enum Role {
   USER
 }
 
-model User {
-  id            String    @id @default(cuid())
-  firstName     String    @map("first_name")
-  lastName      String    @map("last_name")
-  email         String    @unique
-  password      String?
-  role                Role      @default(USER)
-  isActive            Boolean   @default(true) @map("is_active")
-  emailVerified       DateTime? @map("email_verified")
-  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
-  lockedUntil         DateTime? @map("locked_until")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
-
-  emailTokens         EmailToken[]
-  passwordResetTokens PasswordResetToken[]
-
-  @@map("users")
-}
-
 enum EmailTokenType {
   VERIFICATION
   CHANGE
 }
+
+enum EntityType {
+  INDIVIDUAL
+  COMPANY
+}
+
+// ─── Auth tokens ─────────────────────────────────────────────────────────────
 
 model EmailToken {
   id        String         @id @default(cuid())
@@ -72,27 +56,163 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+// ─── Address ─────────────────────────────────────────────────────────────────
+
+model Address {
+  id           String  @id @default(cuid())
+  zip          String?
+  street       String?
+  number       String?
+  complement   String?
+  neighborhood String?
+  city         String?
+  state        String?
+  country      String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  company  Company?
+  user     User?
+  supplier Supplier?
+  customer Customer?
+
+  @@map("addresses")
+}
+
+// ─── Company ─────────────────────────────────────────────────────────────────
+
+model Company {
+  id                    String   @id @default(cuid())
+  legalName             String   @map("legal_name")
+  tradeName             String   @map("trade_name")
+  taxId                 String   @unique @map("tax_id")
+  stateRegistration     String?  @map("state_registration")
+  municipalRegistration String?  @map("municipal_registration")
+  email                 String   @unique
+  phoneCountryCode      String   @default("55") @map("phone_country_code")
+  phone                 String
+  isActive              Boolean  @default(true) @map("is_active")
+
+  addressId String?  @unique @map("address_id")
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("companies")
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id                  String    @id @default(cuid())
+  firstName           String    @map("first_name")
+  lastName            String    @map("last_name")
+  email               String    @unique
+  password            String?
+  role                Role      @default(USER)
+  nationalId          String?   @map("national_id")
+  birthDate           DateTime? @map("birth_date")
+  phoneCountryCode    String    @default("55") @map("phone_country_code")
+  phone               String?
+  isActive            Boolean   @default(true) @map("is_active")
+  emailVerified       DateTime? @map("email_verified")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+
+  addressId String?  @unique @map("address_id")
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  emailTokens         EmailToken[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+// ─── Supplier ────────────────────────────────────────────────────────────────
+
+model SupplierCategory {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  isActive    Boolean @default(true) @map("is_active")
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  suppliers Supplier[]
+
+  @@map("supplier_categories")
+}
+
 model Supplier {
-  id        String   @id @default(cuid())
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  email     String   @unique
-  isActive  Boolean  @default(true) @map("is_active")
+  id                    String     @id @default(cuid())
+  entityType            EntityType @map("entity_type")
+  name                  String
+  tradeName             String     @map("trade_name")
+  birthDate             DateTime?  @map("birth_date")
+  taxId                 String     @map("tax_id")
+  stateRegistration     String?    @map("state_registration")
+  municipalRegistration String?    @map("municipal_registration")
+  email                 String
+  phoneCountryCode      String     @default("55") @map("phone_country_code")
+  phone                 String
+  notes                 String?
+  isActive              Boolean    @default(true) @map("is_active")
+
+  categoryId String?           @map("category_id")
+  category   SupplierCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  addressId String?  @unique @map("address_id")
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("suppliers")
 }
 
+// ─── Customer ────────────────────────────────────────────────────────────────
+
+model CustomerCategory {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  isActive    Boolean @default(true) @map("is_active")
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  customers Customer[]
+
+  @@map("customer_categories")
+}
+
 model Customer {
-  id        String   @id @default(cuid())
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  email     String   @unique
-  isActive  Boolean  @default(true) @map("is_active")
+  id                    String     @id @default(cuid())
+  entityType            EntityType @map("entity_type")
+  name                  String
+  tradeName             String     @map("trade_name")
+  birthDate             DateTime?  @map("birth_date")
+  taxId                 String     @map("tax_id")
+  stateRegistration     String?    @map("state_registration")
+  municipalRegistration String?    @map("municipal_registration")
+  email                 String
+  phoneCountryCode      String     @default("55") @map("phone_country_code")
+  phone                 String
+  notes                 String?
+  isActive              Boolean    @default(true) @map("is_active")
+
+  categoryId String?           @map("category_id")
+  category   CustomerCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  addressId String?  @unique @map("address_id")
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("customers")
 }
-
