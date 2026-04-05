@@ -7,6 +7,7 @@ import { z, flattenError } from "zod"
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { SignInSchema, SetupSchema, ResetPasswordSchema, ChangePasswordSchema, ChangeEmailSchema, DeleteAccountSchema } from "@/lib/auth"
+import { companySchema, type CompanyFormValues } from "@/schemas/company.schema"
 import { sendPasswordResetEmail, sendEmailChangeEmail, sendAccountDeletionEmail } from "@/lib/email"
 import { verifySession } from "@/lib/dal"
 import { randomBytes } from "crypto"
@@ -64,35 +65,38 @@ export async function login(
   }
 }
 
-export async function setupSuperAdmin(
-  _prevState: AuthState,
-  formData: FormData,
-): Promise<AuthState> {
+export async function setupSystem(
+  companyData: CompanyFormValues,
+  adminData: { firstName: string; lastName: string; email: string; password: string },
+): Promise<{ error: string } | void> {
   const count = await prisma.user.count()
   if (count > 0) return { error: "O sistema já foi configurado." }
 
-  const data = {
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  }
+  const companyValidated = companySchema.safeParse(companyData)
+  if (!companyValidated.success) return { error: "Dados da empresa inválidos." }
 
-  const validated = SetupSchema.safeParse(data)
-  if (!validated.success) {
-    return { errors: flattenError(validated.error).fieldErrors }
-  }
+  const adminValidated = SetupSchema.safeParse(adminData)
+  if (!adminValidated.success) return { error: "Dados do administrador inválidos." }
 
-  const { password, ...rest } = validated.data
+  const { password, ...adminRest } = adminValidated.data
 
-  const existing = await prisma.user.findUnique({ where: { email: rest.email }, select: { id: true } })
+  const existing = await prisma.user.findUnique({ where: { email: adminRest.email }, select: { id: true } })
   if (existing) return { error: "Este e-mail já está em uso" }
 
   const hashedPassword = await bcrypt.hash(password, 12)
 
-  await prisma.user.create({
-    data: { ...rest, password: hashedPassword, role: "SUPER_ADMIN", emailVerified: new Date() },
-  })
+  const { address, ...companyRest } = companyValidated.data
+
+  const addressCreate = address && Object.values(address).some(Boolean)
+    ? { create: address }
+    : undefined
+
+  await prisma.$transaction([
+    prisma.company.create({ data: { ...companyRest, address: addressCreate } }),
+    prisma.user.create({
+      data: { ...adminRest, password: hashedPassword, role: "SUPER_ADMIN", emailVerified: new Date() },
+    }),
+  ])
 
   redirect("/sign-in")
 }
