@@ -63,6 +63,7 @@ function ActionsCell({ row, currentUserId }: { row: { original: UserRow }; curre
           onClick={() => startTransition(async () => {
             const result = await toggleUserActive(user.id)
             if (result?.error) toast.error(result.error)
+            else toast.success(user.isActive ? 'Usuário desativado.' : 'Usuário reativado.')
           })}
         >
           {user.isActive ? 'Desativar' : 'Reativar'}
@@ -83,6 +84,7 @@ function ActionsCell({ row, currentUserId }: { row: { original: UserRow }; curre
           onConfirm={() => startTransition(async () => {
             const result = await deleteUser(user.id)
             if (result?.error) toast.error(result.error)
+            else toast.success('Usuário excluído com sucesso.')
           })}
         />
       </DropdownMenuContent>
@@ -96,7 +98,11 @@ export function getColumns(currentUserId: string): ColumnDef<UserRow>[] {
       id: 'name',
       accessorFn: (row) => `${row.firstName} ${row.lastName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nome" />,
-      cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+      cell: ({ row }) => (
+        <Link href={`/users/${row.original.id}`} className="hover:underline">
+          {row.original.firstName} {row.original.lastName}
+        </Link>
+      ),
     },
     {
       accessorKey: 'email',

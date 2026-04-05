@@ -3,6 +3,17 @@ import 'server-only'
 import { prisma } from '@/lib/prisma'
 import { verifySession } from '@/lib/dal'
 
+const addressSelect = {
+  zip:          true,
+  street:       true,
+  number:       true,
+  complement:   true,
+  neighborhood: true,
+  city:         true,
+  state:        true,
+  country:      true,
+} as const
+
 export async function getUsers() {
   await verifySession()
 
@@ -26,12 +37,17 @@ export async function getUser(id: string) {
   return prisma.user.findUnique({
     where: { id },
     select: {
-      id:        true,
-      firstName: true,
-      lastName:  true,
-      email:     true,
-      role:      true,
-      isActive:  true,
+      id:               true,
+      firstName:        true,
+      lastName:         true,
+      email:            true,
+      role:             true,
+      nationalId:       true,
+      birthDate:        true,
+      phoneCountryCode: true,
+      phone:            true,
+      isActive:         true,
+      address:          { select: addressSelect },
     },
   })
 }

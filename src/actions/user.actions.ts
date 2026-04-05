@@ -1,7 +1,6 @@
 'use server'
 
 import { randomBytes } from 'crypto'
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
@@ -10,21 +9,43 @@ import { sendWelcomeEmail } from '@/lib/email'
 import { userSchema, type UserFormValues } from '@/schemas/user.schema'
 
 type ActionError = { error: string }
+type ActionSuccess = { success: string }
 
-export async function createUser(data: UserFormValues): Promise<ActionError | void> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildAddressWrite(address: UserFormValues['address']): any {
+  if (!address) return undefined
+  const hasData = Object.entries(address).some(([k, v]) => k !== 'country' && v)
+  if (!hasData && !address.country) return undefined
+  return { upsert: { create: address, update: address } }
+}
+
+export async function createUser(data: UserFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
   const validated = userSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  const { firstName, lastName, email, role } = validated.data
+  const { address, birthDate, ...rest } = validated.data
 
-  let user: { id: string }
+  let token: string
   try {
-    user = await prisma.user.create({
-      data: { firstName, lastName, email, role, password: null, emailVerified: new Date() },
-      select: { id: true },
-    })
+    ;({ token } = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          ...rest,
+          birthDate:    birthDate ? new Date(birthDate) : null,
+          password:     null,
+          emailVerified: new Date(),
+          address:      buildAddressWrite(address),
+        },
+        select: { id: true },
+      })
+      const t = randomBytes(32).toString('hex')
+      await tx.passwordResetToken.create({
+        data: { token: t, userId: user.id, expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000) },
+      })
+      return { token: t }
+    }))
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
       return { error: 'Este e-mail já está em uso' }
@@ -32,30 +53,31 @@ export async function createUser(data: UserFormValues): Promise<ActionError | vo
     throw e
   }
 
-  const token = randomBytes(32).toString('hex')
-  await prisma.passwordResetToken.create({
-    data: { token, userId: user.id, expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000) },
-  })
-
-  await sendWelcomeEmail(email, token)
+  await sendWelcomeEmail(rest.email, token)
 
   revalidatePath('/users')
-  redirect('/users')
+  return { success: 'Usuário criado com sucesso.' }
 }
 
-export async function updateUser(id: string, data: UserFormValues): Promise<ActionError | void> {
+export async function updateUser(id: string, data: UserFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
   const validated = userSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
+  const { address, birthDate, ...rest } = validated.data
+
   try {
-    const existing = await prisma.user.findUnique({ where: { email: validated.data.email }, select: { id: true } })
+    const existing = await prisma.user.findUnique({ where: { email: rest.email }, select: { id: true } })
     if (existing && existing.id !== id) return { error: 'Este e-mail já está em uso' }
 
     await prisma.user.update({
       where: { id },
-      data: validated.data,
+      data: {
+        ...rest,
+        birthDate: birthDate ? new Date(birthDate) : null,
+        address:   buildAddressWrite(address),
+      },
     })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
@@ -65,7 +87,7 @@ export async function updateUser(id: string, data: UserFormValues): Promise<Acti
   }
 
   revalidatePath('/users')
-  redirect('/users')
+  return { success: 'Usuário atualizado com sucesso.' }
 }
 
 export async function deleteUser(userId: string): Promise<ActionError | void> {
