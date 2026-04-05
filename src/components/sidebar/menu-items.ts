@@ -9,14 +9,27 @@ import {
   ShoppingBagIcon,
   ShoppingCartIcon,
   StoreIcon,
+  TagIcon,
   UsersIcon,
 } from 'lucide-react'
 
-export const dashboard = {
-  name: 'Dashboard',
-  url: '/dashboard',
-  icon: LayoutDashboard,
-}
+export const main = [
+  {
+    name: 'Dashboard',
+    url: '/dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    name: 'Licenses',
+    url: '/licenses',
+    icon: QrCodeIcon,
+  },
+  {
+    name: 'Customers',
+    url: '/customers',
+    icon: UsersIcon,
+  },
+]
 
 export const system = [
   {
@@ -43,6 +56,11 @@ export const records = [
     icon: StoreIcon,
   },
   {
+    name: 'Supplier Categories',
+    url: '/supplier-categories',
+    icon: TagIcon,
+  },
+  {
     name: 'Products',
     url: '/products',
     icon: BoxIcon,
@@ -56,6 +74,11 @@ export const records = [
     name: 'Customers',
     url: '/customers',
     icon: UsersIcon,
+  },
+  {
+    name: 'Customer Categories',
+    url: '/customer-categories',
+    icon: TagIcon,
   },
 ]
 

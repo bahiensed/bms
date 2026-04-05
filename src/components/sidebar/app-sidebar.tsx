@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  dashboard,
+  main,
   system,
   records,
   purchasing,
@@ -40,20 +40,24 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader />
+      <SidebarHeader className="border-b p-4">
+        <span className="font-bold text-sm">Sequoia</span>
+      </SidebarHeader>
       <SidebarContent>
-        {/* Dashboard — standalone, above all groups */}
+        {/* Main — standalone items above all groups */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === dashboard.url}>
-                  <Link href={dashboard.url}>
-                    <dashboard.icon />
-                    <span>{dashboard.name}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {main.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
