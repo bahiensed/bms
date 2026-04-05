@@ -1,50 +1,67 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { verifySession } from '@/lib/dal'
 import { supplierSchema, type SupplierFormValues } from '@/schemas/supplier.schema'
 
 type ActionError = { error: string }
+type ActionSuccess = { success: string }
 
-export async function createSupplier(data: SupplierFormValues): Promise<ActionError | void> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildAddressWrite(address: SupplierFormValues['address']): any {
+  if (!address) return undefined
+  const hasData = Object.entries(address).some(([k, v]) => k !== 'country' && v)
+  if (!hasData && !address.country) return undefined
+  return { upsert: { create: address, update: address } }
+}
+
+export async function createSupplier(data: SupplierFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
   const validated = supplierSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  const { firstName, lastName, email } = validated.data
+  const { address, birthDate, categoryId, ...rest } = validated.data
 
   try {
     await prisma.supplier.create({
-      data: { firstName, lastName, email },
+      data: {
+        ...rest,
+        birthDate:  birthDate ? new Date(birthDate) : null,
+        categoryId: categoryId || null,
+        address:    buildAddressWrite(address),
+      },
     })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-      return { error: 'Este e-mail já está em uso' }
+      return { error: 'Dados duplicados detectados' }
     }
     throw e
   }
 
   revalidatePath('/suppliers')
-  redirect('/suppliers')
+  return { success: 'Fornecedor criado com sucesso.' }
 }
 
-export async function updateSupplier(id: string, data: SupplierFormValues): Promise<ActionError | void> {
+export async function updateSupplier(id: string, data: SupplierFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
   const validated = supplierSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  try {
-    const existing = await prisma.supplier.findUnique({ where: { email: validated.data.email }, select: { id: true } })
-    if (existing && existing.id !== id) return { error: 'Este e-mail já está em uso' }
+  const { address, birthDate, categoryId, ...rest } = validated.data
 
+  try {
     await prisma.supplier.update({
       where: { id },
-      data: validated.data,
+      data: {
+        ...rest,
+        birthDate:  birthDate ? new Date(birthDate) : null,
+        categoryId: categoryId || null,
+        address:    buildAddressWrite(address),
+      },
     })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
@@ -54,7 +71,7 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
   }
 
   revalidatePath('/suppliers')
-  redirect('/suppliers')
+  return { success: 'Fornecedor atualizado com sucesso.' }
 }
 
 export async function deleteSupplier(id: string): Promise<ActionError | void> {

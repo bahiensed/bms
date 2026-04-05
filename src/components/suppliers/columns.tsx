@@ -21,11 +21,13 @@ import { toggleSupplierActive, deleteSupplier } from '@/actions/supplier.actions
 
 export type SupplierRow = {
   id: string
-  firstName: string
-  lastName: string
+  entityType: string
+  name: string
+  tradeName: string
   email: string
   isActive: boolean
   createdAt: Date
+  category: { id: string; name: string } | null
 }
 
 function ActionsCell({ row }: { row: { original: SupplierRow } }) {
@@ -51,6 +53,7 @@ function ActionsCell({ row }: { row: { original: SupplierRow } }) {
           onClick={() => startTransition(async () => {
             const result = await toggleSupplierActive(supplier.id)
             if (result?.error) toast.error(result.error)
+            else toast.success(supplier.isActive ? 'Fornecedor desativado.' : 'Fornecedor reativado.')
           })}
         >
           {supplier.isActive ? 'Desativar' : 'Reativar'}
@@ -58,10 +61,11 @@ function ActionsCell({ row }: { row: { original: SupplierRow } }) {
         <DropdownMenuSeparator />
         <ConfirmDeleteDialog
           isPending={isPending}
-          description={`O fornecedor "${supplier.firstName} ${supplier.lastName}" será excluído permanentemente.`}
+          description={`O fornecedor "${supplier.name}" será excluído permanentemente.`}
           onConfirm={() => startTransition(async () => {
             const result = await deleteSupplier(supplier.id)
             if (result?.error) toast.error(result.error)
+            else toast.success('Fornecedor excluído com sucesso.')
           })}
         />
       </DropdownMenuContent>
@@ -71,14 +75,29 @@ function ActionsCell({ row }: { row: { original: SupplierRow } }) {
 
 export const supplierColumns: ColumnDef<SupplierRow>[] = [
   {
-    id: 'name',
-    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+    accessorKey: 'name',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nome" />,
-    cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+    cell: ({ row }) => (
+      <Link href={`/suppliers/${row.original.id}`} className="hover:underline">
+        {row.original.name}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: 'entityType',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo" />,
+    cell: ({ row }) => row.original.entityType === 'INDIVIDUAL' ? 'PF' : 'PJ',
+  },
+  {
+    id: 'category',
+    accessorFn: (row) => row.category?.name ?? '',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Categoria" />,
+    cell: ({ row }) => row.original.category?.name ?? '—',
   },
   {
     accessorKey: 'email',
     header: ({ column }) => <DataTableColumnHeader column={column} title="E-mail" />,
+    cell: ({ row }) => row.original.email,
   },
   {
     accessorKey: 'isActive',

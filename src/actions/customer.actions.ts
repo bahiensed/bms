@@ -1,50 +1,67 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { verifySession } from '@/lib/dal'
 import { customerSchema, type CustomerFormValues } from '@/schemas/customer.schema'
 
 type ActionError = { error: string }
+type ActionSuccess = { success: string }
 
-export async function createCustomer(data: CustomerFormValues): Promise<ActionError | void> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildAddressWrite(address: CustomerFormValues['address']): any {
+  if (!address) return undefined
+  const hasData = Object.entries(address).some(([k, v]) => k !== 'country' && v)
+  if (!hasData && !address.country) return undefined
+  return { upsert: { create: address, update: address } }
+}
+
+export async function createCustomer(data: CustomerFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
   const validated = customerSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  const { firstName, lastName, email } = validated.data
+  const { address, birthDate, categoryId, ...rest } = validated.data
 
   try {
     await prisma.customer.create({
-      data: { firstName, lastName, email },
+      data: {
+        ...rest,
+        birthDate:  birthDate ? new Date(birthDate) : null,
+        categoryId: categoryId || null,
+        address:    buildAddressWrite(address),
+      },
     })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-      return { error: 'Este e-mail já está em uso' }
+      return { error: 'Dados duplicados detectados' }
     }
     throw e
   }
 
   revalidatePath('/customers')
-  redirect('/customers')
+  return { success: 'Cliente criado com sucesso.' }
 }
 
-export async function updateCustomer(id: string, data: CustomerFormValues): Promise<ActionError | void> {
+export async function updateCustomer(id: string, data: CustomerFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
   const validated = customerSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  try {
-    const existing = await prisma.customer.findUnique({ where: { email: validated.data.email }, select: { id: true } })
-    if (existing && existing.id !== id) return { error: 'Este e-mail já está em uso' }
+  const { address, birthDate, categoryId, ...rest } = validated.data
 
+  try {
     await prisma.customer.update({
       where: { id },
-      data: validated.data,
+      data: {
+        ...rest,
+        birthDate:  birthDate ? new Date(birthDate) : null,
+        categoryId: categoryId || null,
+        address:    buildAddressWrite(address),
+      },
     })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
@@ -54,7 +71,7 @@ export async function updateCustomer(id: string, data: CustomerFormValues): Prom
   }
 
   revalidatePath('/customers')
-  redirect('/customers')
+  return { success: 'Cliente atualizado com sucesso.' }
 }
 
 export async function deleteCustomer(id: string): Promise<ActionError | void> {

@@ -21,11 +21,13 @@ import { toggleCustomerActive, deleteCustomer } from '@/actions/customer.actions
 
 export type CustomerRow = {
   id: string
-  firstName: string
-  lastName: string
+  entityType: string
+  name: string
+  tradeName: string
   email: string
   isActive: boolean
   createdAt: Date
+  category: { id: string; name: string } | null
 }
 
 function ActionsCell({ row }: { row: { original: CustomerRow } }) {
@@ -51,6 +53,7 @@ function ActionsCell({ row }: { row: { original: CustomerRow } }) {
           onClick={() => startTransition(async () => {
             const result = await toggleCustomerActive(customer.id)
             if (result?.error) toast.error(result.error)
+            else toast.success(customer.isActive ? 'Cliente desativado.' : 'Cliente reativado.')
           })}
         >
           {customer.isActive ? 'Desativar' : 'Reativar'}
@@ -58,10 +61,11 @@ function ActionsCell({ row }: { row: { original: CustomerRow } }) {
         <DropdownMenuSeparator />
         <ConfirmDeleteDialog
           isPending={isPending}
-          description={`O cliente "${customer.firstName} ${customer.lastName}" será excluído permanentemente.`}
+          description={`O cliente "${customer.name}" será excluído permanentemente.`}
           onConfirm={() => startTransition(async () => {
             const result = await deleteCustomer(customer.id)
             if (result?.error) toast.error(result.error)
+            else toast.success('Cliente excluído com sucesso.')
           })}
         />
       </DropdownMenuContent>
@@ -71,14 +75,29 @@ function ActionsCell({ row }: { row: { original: CustomerRow } }) {
 
 export const customerColumns: ColumnDef<CustomerRow>[] = [
   {
-    id: 'name',
-    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+    accessorKey: 'name',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nome" />,
-    cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
+    cell: ({ row }) => (
+      <Link href={`/customers/${row.original.id}`} className="hover:underline">
+        {row.original.name}
+      </Link>
+    ),
+  },
+  {
+    accessorKey: 'entityType',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo" />,
+    cell: ({ row }) => row.original.entityType === 'INDIVIDUAL' ? 'PF' : 'PJ',
+  },
+  {
+    id: 'category',
+    accessorFn: (row) => row.category?.name ?? '',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Categoria" />,
+    cell: ({ row }) => row.original.category?.name ?? '—',
   },
   {
     accessorKey: 'email',
     header: ({ column }) => <DataTableColumnHeader column={column} title="E-mail" />,
+    cell: ({ row }) => row.original.email,
   },
   {
     accessorKey: 'isActive',
