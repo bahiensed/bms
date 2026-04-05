@@ -9,8 +9,8 @@ import { Toaster } from "@/components/ui/sonner"
 import { CookieConsent } from '@/components/cookies/cookie-consent'
 
 export const metadata: Metadata = {
-  title: "BMS Boilerplate",
-  description: "Business Management System Boilerplate",
+  title: "Sequoia | BMS",
+  description: "Sequoia Business Management System",
 }
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
         >
           <TooltipProvider>
             {children}
-            <Toaster />
+            <Toaster richColors />
             <CookieConsent />
           </TooltipProvider>
         </ThemeProvider>
