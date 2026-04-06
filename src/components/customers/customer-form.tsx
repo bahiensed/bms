@@ -53,7 +53,8 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
   const router = useRouter()
 
   const form = useForm<CustomerCreateFormValues>({
-    resolver:      isEditing ? customerResolver      : customerCreateResolver,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver:      isEditing ? (customerResolver as any) : customerCreateResolver,
     defaultValues: isEditing ? (defaultValues ?? customerDefaultValues) : customerCreateDefaultValues,
   })
 

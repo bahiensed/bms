@@ -7,22 +7,17 @@ type EntityType = (typeof ENTITY_TYPES)[number]
 
 async function resolveName(type: EntityType, id: string): Promise<string | null> {
   if (type === 'users') {
-    const record = await prisma.user.findUnique({ where: { id }, select: { firstName: true } })
-    return record?.firstName ?? null
+    const record = await prisma.user.findUnique({ where: { id }, select: { firstName: true, lastName: true } })
+    if (!record) return null
+    return `${record.firstName} ${record.lastName}`.trim() || null
   }
   if (type === 'customers') {
-    const record = await prisma.customer.findUnique({ where: { id }, select: { name: true, firstName: true, lastName: true, entityType: true } })
-    if (!record) return null
-    return record.entityType === 'INDIVIDUAL'
-      ? [record.firstName, record.lastName].filter(Boolean).join(' ') || null
-      : record.name ?? null
+    const record = await prisma.customer.findUnique({ where: { id }, select: { name: true } })
+    return record?.name ?? null
   }
   if (type === 'suppliers') {
-    const record = await prisma.supplier.findUnique({ where: { id }, select: { name: true, firstName: true, lastName: true, entityType: true } })
-    if (!record) return null
-    return record.entityType === 'INDIVIDUAL'
-      ? [record.firstName, record.lastName].filter(Boolean).join(' ') || null
-      : record.name ?? null
+    const record = await prisma.supplier.findUnique({ where: { id }, select: { name: true } })
+    return record?.name ?? null
   }
   return null
 }
