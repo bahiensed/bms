@@ -16,6 +16,7 @@ enum Role {
   COMERCIAL
   FINANCE
   USER
+  APP_USER
 }
 
 enum EmailTokenType {
@@ -121,6 +122,9 @@ model User {
   failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
   lockedUntil         DateTime? @map("locked_until")
 
+  customerId String?   @map("customer_id")
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
   addressId String?  @unique @map("address_id")
   address   Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
 
@@ -213,6 +217,8 @@ model Customer {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  users User[]
 
   @@map("customers")
 }

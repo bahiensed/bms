@@ -4,7 +4,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
-import { customerResolver, customerDefaultValues, type CustomerFormValues } from '@/schemas/customer.schema'
+import {
+  customerResolver,
+  customerCreateResolver,
+  customerDefaultValues,
+  customerCreateDefaultValues,
+  type CustomerFormValues,
+  type CustomerCreateFormValues,
+} from '@/schemas/customer.schema'
 import { createCustomer, updateCustomer } from '@/actions/customer.actions'
 import { maskCpf, maskCnpj, maskPhone } from '@/lib/masks'
 import { PHONE_COUNTRY_CODES } from '@/constants/phone-country-codes'
@@ -45,9 +52,9 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
   const [serverError, setServerError] = useState<string | null>(null)
   const router = useRouter()
 
-  const form = useForm<CustomerFormValues>({
-    resolver: customerResolver,
-    defaultValues: defaultValues ?? customerDefaultValues,
+  const form = useForm<CustomerCreateFormValues>({
+    resolver:      isEditing ? customerResolver      : customerCreateResolver,
+    defaultValues: isEditing ? (defaultValues ?? customerDefaultValues) : customerCreateDefaultValues,
   })
 
   const { control, handleSubmit, setValue, formState: { isSubmitting, errors } } = form
@@ -55,9 +62,11 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
   const entityType = useWatch({ control, name: 'entityType' })
   const isIndividual = entityType === 'INDIVIDUAL'
 
-  async function onSubmit(data: CustomerFormValues) {
+  async function onSubmit(data: CustomerCreateFormValues) {
     setServerError(null)
-    const result = isEditing ? await updateCustomer(id, data) : await createCustomer(data)
+    const result = isEditing
+      ? await updateCustomer(id, data as CustomerFormValues)
+      : await createCustomer(data)
     if ('error' in result) {
       setServerError(result.error)
     } else {
@@ -309,6 +318,55 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
         errors={errors}
         prefix="address"
       />
+
+      {!isEditing && (
+        <>
+          <FieldSeparator />
+
+          <p className="text-sm font-medium">Administrador</p>
+          <p className="text-sm text-muted-foreground -mt-4">
+            Dados de acesso ao sistema Sequoia para o responsável por esta empresa.
+          </p>
+
+          <FieldGroup>
+            <div className="grid grid-cols-2 gap-3">
+              <Controller
+                name="owner.firstName"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Nome:</FieldLabel>
+                    <Input {...field} autoComplete="given-name" aria-invalid={fieldState.invalid} />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="owner.lastName"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel>Sobrenome:</FieldLabel>
+                    <Input {...field} autoComplete="family-name" aria-invalid={fieldState.invalid} />
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            </div>
+            <Controller
+              name="owner.email"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>E-mail:</FieldLabel>
+                  <Input {...field} type="email" autoComplete="off" aria-invalid={fieldState.invalid} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </>
+      )}
 
       <Field orientation="horizontal">
         <Button type="submit" disabled={isSubmitting}>

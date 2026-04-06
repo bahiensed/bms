@@ -60,6 +60,21 @@ export async function sendWelcomeEmail(to: string, token: string): Promise<void>
   })
 }
 
+export async function sendSequoiaWelcomeEmail(to: string, token: string): Promise<void> {
+  const url = `${process.env.SEQUOIA_URL}/reset-password?token=${token}`
+  await resend.emails.send({
+    from: "no-reply@rohling.com.br",
+    to,
+    subject: "Bem-vindo ao Sequoia! Configure seu acesso",
+    html: `
+      <p>Sua empresa foi cadastrada e sua conta de administrador foi criada.</p>
+      <p>Clique no link abaixo para criar sua senha e acessar o sistema (expira em 72h):</p>
+      <p><a href="${url}">Configurar senha</a></p>
+      <p>Se você não esperava este e-mail, entre em contato com o administrador.</p>
+    `,
+  })
+}
+
 export async function sendPasswordResetEmail(to: string, token: string): Promise<void> {
   const url = `${process.env.APP_URL}/reset-password?token=${token}`
   await resend.emails.send({

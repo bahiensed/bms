@@ -21,9 +21,28 @@ export const customerSchema = z.object({
   address:               addressSchema.optional(),
 })
 
-export type CustomerFormValues = z.infer<typeof customerSchema>
+export const ownerSchema = z.object({
+  firstName: z.string().min(2, 'Mínimo 2 caracteres'),
+  lastName:  z.string().min(2, 'Mínimo 2 caracteres'),
+  email:     z.string().email('E-mail inválido'),
+})
 
-export const customerResolver = zodResolver(customerSchema)
+export const customerCreateSchema = customerSchema.extend({
+  owner: ownerSchema,
+})
+
+export type CustomerFormValues       = z.infer<typeof customerSchema>
+export type OwnerFormValues          = z.infer<typeof ownerSchema>
+export type CustomerCreateFormValues = z.infer<typeof customerCreateSchema>
+
+export const customerResolver       = zodResolver(customerSchema)
+export const customerCreateResolver = zodResolver(customerCreateSchema)
+
+export const ownerDefaultValues: OwnerFormValues = {
+  firstName: '',
+  lastName:  '',
+  email:     '',
+}
 
 export const customerDefaultValues: CustomerFormValues = {
   entityType:            'COMPANY',
@@ -40,4 +59,9 @@ export const customerDefaultValues: CustomerFormValues = {
   categoryId:            '',
   isActive:              true,
   address:               addressDefaultValues,
+}
+
+export const customerCreateDefaultValues: CustomerCreateFormValues = {
+  ...customerDefaultValues,
+  owner: ownerDefaultValues,
 }

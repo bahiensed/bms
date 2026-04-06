@@ -1,10 +1,17 @@
 'use server'
 
+import { randomBytes } from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { verifySession } from '@/lib/dal'
-import { customerSchema, type CustomerFormValues } from '@/schemas/customer.schema'
+import { sendSequoiaWelcomeEmail } from '@/lib/email'
+import {
+  customerSchema,
+  customerCreateSchema,
+  type CustomerFormValues,
+  type CustomerCreateFormValues,
+} from '@/schemas/customer.schema'
 
 type ActionError = { error: string }
 type ActionSuccess = { success: string }
@@ -17,29 +24,58 @@ function buildAddressWrite(address: CustomerFormValues['address']): any {
   return { upsert: { create: address, update: address } }
 }
 
-export async function createCustomer(data: CustomerFormValues): Promise<ActionError | ActionSuccess> {
+export async function createCustomer(data: CustomerCreateFormValues): Promise<ActionError | ActionSuccess> {
   await verifySession()
 
-  const validated = customerSchema.safeParse(data)
+  const validated = customerCreateSchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
-  const { address, birthDate, categoryId, ...rest } = validated.data
+  const { address, birthDate, categoryId, owner, ...rest } = validated.data
 
+  const existingOwner = await prisma.user.findUnique({ where: { email: owner.email }, select: { id: true } })
+  if (existingOwner) return { error: 'Este e-mail de administrador já está em uso' }
+
+  let token: string
   try {
-    await prisma.customer.create({
-      data: {
-        ...rest,
-        birthDate:  birthDate ? new Date(birthDate) : null,
-        categoryId: categoryId || null,
-        address:    buildAddressWrite(address),
-      },
-    })
+    ;({ token } = await prisma.$transaction(async (tx) => {
+      const customer = await tx.customer.create({
+        data: {
+          ...rest,
+          birthDate:  birthDate ? new Date(birthDate) : null,
+          categoryId: categoryId || null,
+          address:    buildAddressWrite(address),
+        },
+        select: { id: true },
+      })
+
+      const user = await tx.user.create({
+        data: {
+          firstName:     owner.firstName,
+          lastName:      owner.lastName,
+          email:         owner.email,
+          role:          'OWNER',
+          customerId:    customer.id,
+          password:      null,
+          emailVerified: new Date(),
+        },
+        select: { id: true },
+      })
+
+      const t = randomBytes(32).toString('hex')
+      await tx.passwordResetToken.create({
+        data: { token: t, userId: user.id, expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000) },
+      })
+
+      return { token: t }
+    }))
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
       return { error: 'Dados duplicados detectados' }
     }
     throw e
   }
+
+  await sendSequoiaWelcomeEmail(owner.email, token)
 
   revalidatePath('/customers')
   return { success: 'Cliente criado com sucesso.' }
