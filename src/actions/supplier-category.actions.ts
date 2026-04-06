@@ -35,7 +35,7 @@ export async function updateSupplierCategory(id: string, data: SupplierCategoryF
   if (!validated.success) return { error: 'Dados inválidos' }
 
   try {
-    const existing = await prisma.supplierCategory.findUnique({ where: { name: validated.data.name }, select: { id: true } })
+    const existing = await prisma.supplierCategory.findFirst({ where: { name: validated.data.name, tenantId: null }, select: { id: true } })
     if (existing && existing.id !== id) return { error: 'Já existe uma categoria com este nome' }
 
     await prisma.supplierCategory.update({ where: { id }, data: validated.data })
