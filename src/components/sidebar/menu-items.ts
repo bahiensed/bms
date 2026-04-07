@@ -1,15 +1,16 @@
 import {
-  BarChart2,
+  BanknoteIcon,
   BoxIcon,
   BuildingIcon,
-  HandPlatterIcon,
+  ChartNoAxesCombined,
+  FactoryIcon,
+  HandCoinsIcon,
   IdCardIcon,
   LayoutDashboard,
+  PackageIcon,
   QrCodeIcon,
-  ShoppingBagIcon,
-  ShoppingCartIcon,
-  StoreIcon,
   TagIcon,
+  ToolboxIcon,
   UsersIcon,
 } from 'lucide-react'
 
@@ -23,6 +24,11 @@ export const main = [
     name: 'Licenses',
     url: '/licenses',
     icon: QrCodeIcon,
+  },
+  {
+    name: 'Packages',
+    url: '/packages',
+    icon: PackageIcon,
   },
   {
     name: 'Customers',
@@ -51,9 +57,14 @@ export const records = [
     icon: QrCodeIcon,
   },
   {
+    name: 'Packages',
+    url: '/packages',
+    icon: PackageIcon,
+  },
+  {
     name: 'Suppliers',
     url: '/suppliers',
-    icon: StoreIcon,
+    icon: FactoryIcon,
   },
   {
     name: 'Supplier Categories',
@@ -68,7 +79,7 @@ export const records = [
   {
     name: 'Services',
     url: '/services',
-    icon: HandPlatterIcon,
+    icon: ToolboxIcon,
   },
   {
     name: 'Customers',
@@ -91,7 +102,7 @@ export const purchasing = [
   {
     name: 'Services',
     url: '/purchasing/services',
-    icon: HandPlatterIcon,
+    icon: ToolboxIcon,
   },
 ]
 
@@ -107,7 +118,12 @@ export const sales = [
   {
     name: 'Sales',
     url: '/sales',
-    icon: ShoppingCartIcon,
+    icon: BanknoteIcon,
+  },
+  {
+    name: 'Manual Sales',
+    url: '/manual-sales',
+    icon: HandCoinsIcon,
   },
 ]
 
@@ -115,6 +131,15 @@ export const finance = [
   {
     name: 'Finance',
     url: '/finance',
-    icon: BarChart2,
+    icon: ChartNoAxesCombined,
   },
+]
+
+export const groups = [
+  { label: 'System',     items: system     },
+  { label: 'Records',    items: records    },
+  { label: 'Purchasing', items: purchasing },
+  { label: 'Inventory',  items: inventory  },
+  { label: 'Sales',      items: sales      },
+  { label: 'Finance',    items: finance    },
 ]

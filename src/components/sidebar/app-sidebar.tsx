@@ -2,15 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  main,
-  system,
-  records,
-  purchasing,
-  inventory,
-  sales,
-  finance,
-} from '@/components/sidebar/menu-items'
+import { main, groups } from '@/components/sidebar/menu-items'
 import { ChevronDown } from 'lucide-react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
@@ -26,25 +18,15 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 
-const groups = [
-  { label: 'System', items: system },
-  { label: 'Records', items: records },
-  { label: 'Purchasing', items: purchasing },
-  { label: 'Inventory', items: inventory },
-  { label: 'Sales', items: sales },
-  { label: 'Finance', items: finance },
-]
-
 export function AppSidebar() {
   const pathname = usePathname()
 
   return (
     <Sidebar>
       <SidebarHeader className="border-b p-4">
-        <span className="font-bold text-sm">Sequoia</span>
+        <span className="font-bold text-sm">BMS</span>
       </SidebarHeader>
       <SidebarContent>
-        {/* Main — standalone items above all groups */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
