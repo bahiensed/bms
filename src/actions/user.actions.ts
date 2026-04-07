@@ -12,10 +12,11 @@ type ActionError = { error: string }
 type ActionSuccess = { success: string }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildAddressWrite(address: UserFormValues['address']): any {
+function buildAddressWrite(address: UserFormValues['address'], mode: 'create' | 'update'): any {
   if (!address) return undefined
   const hasData = Object.entries(address).some(([k, v]) => k !== 'country' && v)
   if (!hasData && !address.country) return undefined
+  if (mode === 'create') return { create: address }
   return { upsert: { create: address, update: address } }
 }
 
@@ -36,7 +37,7 @@ export async function createUser(data: UserFormValues): Promise<ActionError | Ac
           birthDate:    birthDate ? new Date(birthDate) : null,
           password:     null,
           emailVerified: new Date(),
-          address:      buildAddressWrite(address),
+          address:      buildAddressWrite(address, 'create'),
         },
         select: { id: true },
       })
@@ -76,7 +77,7 @@ export async function updateUser(id: string, data: UserFormValues): Promise<Acti
       data: {
         ...rest,
         birthDate: birthDate ? new Date(birthDate) : null,
-        address:   buildAddressWrite(address),
+        address:   buildAddressWrite(address, 'update'),
       },
     })
   } catch (e) {

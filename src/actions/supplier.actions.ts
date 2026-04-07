@@ -10,11 +10,13 @@ type ActionError = { error: string }
 type ActionSuccess = { success: string }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildAddressWrite(address: SupplierFormValues['address']): any {
+function buildAddressWrite(address: SupplierFormValues['address'], mode: 'create' | 'update'): any {
   if (!address) return undefined
   const hasData = Object.entries(address).some(([k, v]) => k !== 'country' && v)
   if (!hasData && !address.country) return undefined
-  return { upsert: { create: address, update: address } }
+  return mode === 'create'
+    ? { create: address }
+    : { upsert: { create: address, update: address } }
 }
 
 export async function createSupplier(data: SupplierFormValues): Promise<ActionError | ActionSuccess> {
@@ -29,9 +31,9 @@ export async function createSupplier(data: SupplierFormValues): Promise<ActionEr
     await prisma.supplier.create({
       data: {
         ...rest,
-        birthDate:  birthDate ? new Date(birthDate) : null,
-        categoryId: categoryId || null,
-        address:    buildAddressWrite(address),
+        birthDate: birthDate ? new Date(birthDate) : null,
+        category:  categoryId ? { connect: { id: categoryId } } : undefined,
+        address:   buildAddressWrite(address, 'create'),
       },
     })
   } catch (e) {
@@ -58,9 +60,9 @@ export async function updateSupplier(id: string, data: SupplierFormValues): Prom
       where: { id },
       data: {
         ...rest,
-        birthDate:  birthDate ? new Date(birthDate) : null,
-        categoryId: categoryId || null,
-        address:    buildAddressWrite(address),
+        birthDate: birthDate ? new Date(birthDate) : null,
+        category:  categoryId ? { connect: { id: categoryId } } : { disconnect: true },
+        address:   buildAddressWrite(address, 'update'),
       },
     })
   } catch (e) {

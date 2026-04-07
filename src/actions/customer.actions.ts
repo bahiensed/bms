@@ -17,11 +17,13 @@ type ActionError = { error: string }
 type ActionSuccess = { success: string }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildAddressWrite(address: CustomerFormValues['address']): any {
+function buildAddressWrite(address: CustomerFormValues['address'], mode: 'create' | 'update'): any {
   if (!address) return undefined
   const hasData = Object.entries(address).some(([k, v]) => k !== 'country' && v)
   if (!hasData && !address.country) return undefined
-  return { upsert: { create: address, update: address } }
+  return mode === 'create'
+    ? { create: address }
+    : { upsert: { create: address, update: address } }
 }
 
 export async function createCustomer(data: CustomerCreateFormValues): Promise<ActionError | ActionSuccess> {
@@ -41,9 +43,9 @@ export async function createCustomer(data: CustomerCreateFormValues): Promise<Ac
       const customer = await tx.customer.create({
         data: {
           ...rest,
-          birthDate:  birthDate ? new Date(birthDate) : null,
-          categoryId: categoryId || null,
-          address:    buildAddressWrite(address),
+          birthDate: birthDate ? new Date(birthDate) : null,
+          category:  categoryId ? { connect: { id: categoryId } } : undefined,
+          address:   buildAddressWrite(address, 'create'),
         },
         select: { id: true },
       })
@@ -94,9 +96,9 @@ export async function updateCustomer(id: string, data: CustomerFormValues): Prom
       where: { id },
       data: {
         ...rest,
-        birthDate:  birthDate ? new Date(birthDate) : null,
-        categoryId: categoryId || null,
-        address:    buildAddressWrite(address),
+        birthDate: birthDate ? new Date(birthDate) : null,
+        category:  categoryId ? { connect: { id: categoryId } } : { disconnect: true },
+        address:   buildAddressWrite(address, 'update'),
       },
     })
   } catch (e) {
