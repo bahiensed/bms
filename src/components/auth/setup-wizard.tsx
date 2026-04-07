@@ -88,7 +88,7 @@ export function SetupWizard() {
       <CardHeader>
         <CardTitle>Configuração inicial</CardTitle>
         <CardDescription>
-          Passo {step} de {TOTAL_STEPS} — {STEP_LABELS[step - 1]}
+          Passo {step} de {TOTAL_STEPS} | {STEP_LABELS[step - 1]}
         </CardDescription>
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-1" />
       </CardHeader>
@@ -220,7 +220,7 @@ export function SetupWizard() {
             </FieldGroup>
           </CardContent>
 
-          <CardFooter className="mt-2">
+          <CardFooter className="mt-12">
             <Button type="button" className="w-full" onClick={handleStep1}>
               Próximo →
             </Button>
@@ -241,7 +241,7 @@ export function SetupWizard() {
             />
           </CardContent>
 
-          <CardFooter className="mt-2 flex gap-2">
+          <CardFooter className="mt-12 flex gap-2">
             <Button type="button" variant="outline" onClick={() => setStep(1)}>
               ← Voltar
             </Button>
@@ -288,7 +288,7 @@ export function SetupWizard() {
             </FieldGroup>
           </CardContent>
 
-          <CardFooter className="mt-2 flex gap-2">
+          <CardFooter className="mt-12 flex gap-2">
             <Button type="button" variant="outline" onClick={() => setStep(2)}>
               ← Voltar
             </Button>
@@ -347,7 +347,7 @@ export function SetupWizard() {
             </FieldGroup>
           </CardContent>
 
-          <CardFooter className="mt-2 flex gap-2">
+          <CardFooter className="mt-12 flex gap-2">
             <Button type="button" variant="outline" onClick={() => setStep(3)} disabled={isSubmitting}>
               ← Voltar
             </Button>

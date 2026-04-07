@@ -13,9 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 
 const SUPPORTED_COUNTRIES = [
-  { code: 'BR', label: 'Brasil' },
-  { code: 'US', label: 'Estados Unidos' },
-  { code: 'MX', label: 'México' },
+  { code: 'BR', label: 'Brazil' },
+  { code: 'MX', label: 'Mexico' },
+  { code: 'US', label: 'USA' },
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
