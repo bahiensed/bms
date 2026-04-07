@@ -18,6 +18,10 @@ export const customerSchema = z.object({
   notes:                 z.string().nullish(),
   categoryId:            z.string().min(1, 'Categoria obrigatória'),
   isActive:              z.boolean(),
+  moduleRecords:         z.boolean().default(false),
+  modulePurchasing:      z.boolean().default(false),
+  moduleInventory:       z.boolean().default(false),
+  moduleFinance:         z.boolean().default(false),
   address:               addressSchema.optional(),
 })
 
@@ -58,6 +62,10 @@ export const customerDefaultValues: CustomerFormValues = {
   notes:                 '',
   categoryId:            '',
   isActive:              true,
+  moduleRecords:         false,
+  modulePurchasing:      false,
+  moduleInventory:       false,
+  moduleFinance:         false,
   address:               addressDefaultValues,
 }
 

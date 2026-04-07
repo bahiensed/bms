@@ -28,6 +28,7 @@ import {
   FieldLabel,
   FieldSeparator,
 } from '@/components/ui/field'
+import { AddSupplierCategoryDialog } from '@/components/suppliers/add-supplier-category-dialog'
 
 interface Category {
   id: string
@@ -43,6 +44,7 @@ interface SupplierFormProps {
 export function SupplierForm({ id, defaultValues, categories = [] }: SupplierFormProps) {
   const isEditing = !!id
   const [serverError, setServerError] = useState<string | null>(null)
+  const [localCategories, setLocalCategories] = useState(categories)
   const router = useRouter()
 
   const form = useForm<SupplierFormValues>({
@@ -68,8 +70,6 @@ export function SupplierForm({ id, defaultValues, categories = [] }: SupplierFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-2xl">
-      {serverError && <FieldError>{serverError}</FieldError>}
-
       <FieldGroup>
         {/* Tipo */}
         <div className="grid grid-cols-12 gap-3">
@@ -252,13 +252,19 @@ export function SupplierForm({ id, defaultValues, categories = [] }: SupplierFor
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Categoria:</FieldLabel>
+              <div className="flex items-center justify-between">
+                <FieldLabel>Categoria:</FieldLabel>
+                <AddSupplierCategoryDialog onCreated={(cat) => {
+                  setLocalCategories(prev => [...prev, cat])
+                  field.onChange(cat.id)
+                }} />
+              </div>
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger aria-invalid={fieldState.invalid}>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {localCategories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -310,6 +316,7 @@ export function SupplierForm({ id, defaultValues, categories = [] }: SupplierFor
         prefix="address"
       />
 
+      {serverError && <FieldError>{serverError}</FieldError>}
       <Field orientation="horizontal">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar fornecedor'}

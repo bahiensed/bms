@@ -35,6 +35,8 @@ import {
   FieldLabel,
   FieldSeparator,
 } from '@/components/ui/field'
+import { AddCustomerCategoryDialog } from '@/components/customers/add-customer-category-dialog'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Category {
   id: string
@@ -50,6 +52,7 @@ interface CustomerFormProps {
 export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFormProps) {
   const isEditing = !!id
   const [serverError, setServerError] = useState<string | null>(null)
+  const [localCategories, setLocalCategories] = useState(categories)
   const router = useRouter()
 
   const form = useForm<CustomerCreateFormValues>({
@@ -78,8 +81,6 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-2xl">
-      {serverError && <FieldError>{serverError}</FieldError>}
-
       <FieldGroup>
         {/* Tipo */}
         <div className="grid grid-cols-12 gap-3">
@@ -262,13 +263,19 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>Categoria:</FieldLabel>
+              <div className="flex items-center justify-between">
+                <FieldLabel>Categoria:</FieldLabel>
+                <AddCustomerCategoryDialog onCreated={(cat) => {
+                  setLocalCategories(prev => [...prev, cat])
+                  field.onChange(cat.id)
+                }} />
+              </div>
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger aria-invalid={fieldState.invalid}>
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {localCategories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -369,6 +376,51 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
         </>
       )}
 
+      <FieldSeparator />
+
+      <p className="text-sm font-medium">Módulos do Sequoia</p>
+      <p className="text-sm text-muted-foreground -mt-4">
+        Módulos sempre disponíveis não podem ser desativados.
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 max-w-sm">
+        {/* Always-on — disabled */}
+        {[
+          'Dashboard', 'Licenses', 'Customers', 'Sales', 'System',
+        ].map((label) => (
+          <label key={label} className="flex items-center gap-2 text-sm opacity-60 cursor-not-allowed">
+            <Checkbox checked disabled />
+            {label}
+          </label>
+        ))}
+
+        {/* Optional modules */}
+        {(
+          [
+            { name: 'moduleRecords',    label: 'Records'    },
+            { name: 'modulePurchasing', label: 'Purchasing' },
+            { name: 'moduleInventory',  label: 'Inventory'  },
+            { name: 'moduleFinance',    label: 'Finance'    },
+          ] as const
+        ).map(({ name, label }) => (
+          <Controller
+            key={name}
+            name={name}
+            control={control}
+            render={({ field }) => (
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+                {label}
+              </label>
+            )}
+          />
+        ))}
+      </div>
+
+      {serverError && <FieldError>{serverError}</FieldError>}
       <Field orientation="horizontal">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar cliente'}

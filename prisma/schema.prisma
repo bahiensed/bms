@@ -29,6 +29,39 @@ enum EntityType {
   COMPANY
 }
 
+// ─── Licenses & Packages ─────────────────────────────────────────────────────
+
+model License {
+  id          String    @id @default(cuid())
+  component   String
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  packages Package[]
+
+  @@map("licenses")
+}
+
+model Package {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2) @map("price")
+  quantity    Int      @default(1)
+  isActive    Boolean  @default(true) @map("is_active")
+
+  licenseId String  @map("license_id")
+  license   License @relation(fields: [licenseId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("packages")
+}
+
 // ─── Auth tokens ─────────────────────────────────────────────────────────────
 
 model EmailToken {
@@ -219,6 +252,11 @@ model Customer {
   phone                 String
   notes                 String?
   isActive              Boolean    @default(true) @map("is_active")
+
+  moduleRecords    Boolean @default(false) @map("module_records")
+  modulePurchasing Boolean @default(false) @map("module_purchasing")
+  moduleInventory  Boolean @default(false) @map("module_inventory")
+  moduleFinance    Boolean @default(false) @map("module_finance")
 
   categoryId String?           @map("category_id")
   category   CustomerCategory? @relation("CustomerCategory", fields: [categoryId], references: [id], onDelete: SetNull)
