@@ -67,6 +67,28 @@ export function validateCpf(cpf: string): boolean {
   return remainder === parseInt(digits[10])
 }
 
+export function maskPhoneMX(value: string): string {
+  // Mexico: 10 digits → (XXX) XXX-XXXX
+  const digits = unmaskDigits(value).slice(0, 10)
+  return digits
+    .replace(/(\d{3})(\d)/, '($1) $2')
+    .replace(/(\d{3})(\d{1,4})$/, '$1-$2')
+}
+
+export function maskPhoneUS(value: string): string {
+  // USA: 10 digits → (XXX) XXX-XXXX
+  const digits = unmaskDigits(value).slice(0, 10)
+  return digits
+    .replace(/(\d{3})(\d)/, '($1) $2')
+    .replace(/(\d{3})(\d{1,4})$/, '$1-$2')
+}
+
+export function maskPhoneByCountry(value: string, countryCode: string): string {
+  if (countryCode === '52') return maskPhoneMX(value)
+  if (countryCode === '1')  return maskPhoneUS(value)
+  return maskPhone(value)
+}
+
 export function validateCnpj(cnpj: string): boolean {
   const digits = unmaskDigits(cnpj)
   if (digits.length !== 14 || /^(\d)\1+$/.test(digits)) return false

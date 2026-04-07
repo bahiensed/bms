@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { toast } from 'sonner'
 import { userResolver, userDefaultValues, ASSIGNABLE_ROLES, type UserFormValues } from '@/schemas/user.schema'
 import { createUser, updateUser } from '@/actions/user.actions'
-import { maskCpf, maskPhone } from '@/lib/masks'
+import { maskCpf, maskPhoneByCountry } from '@/lib/masks'
 import { PHONE_COUNTRY_CODES } from '@/constants/phone-country-codes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -52,6 +52,7 @@ export function UserForm({ id, defaultValues }: UserFormProps) {
   })
 
   const { control, handleSubmit, setValue, formState: { isSubmitting, errors } } = form
+  const countryCode = form.watch('phoneCountryCode')
 
   async function onSubmit(data: UserFormValues) {
     setServerError(null)
@@ -190,7 +191,7 @@ export function UserForm({ id, defaultValues }: UserFormProps) {
                 <MaskedInput
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  maskFn={maskPhone}
+                  maskFn={(v) => maskPhoneByCountry(v, countryCode)}
                   autoComplete="off"
                   aria-invalid={fieldState.invalid}
                 />
