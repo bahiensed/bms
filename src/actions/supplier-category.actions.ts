@@ -8,15 +8,17 @@ import { supplierCategorySchema, type SupplierCategoryFormValues } from '@/schem
 
 type ActionError = { error: string }
 type ActionSuccess = { success: string }
+type CreateSuccess = { success: string; category: { id: string; name: string } }
 
-export async function createSupplierCategory(data: SupplierCategoryFormValues): Promise<ActionError | ActionSuccess> {
+export async function createSupplierCategory(data: SupplierCategoryFormValues): Promise<ActionError | CreateSuccess> {
   await verifySession()
 
   const validated = supplierCategorySchema.safeParse(data)
   if (!validated.success) return { error: 'Dados inválidos' }
 
+  let created: { id: string; name: string }
   try {
-    await prisma.supplierCategory.create({ data: validated.data })
+    created = await prisma.supplierCategory.create({ data: validated.data, select: { id: true, name: true } })
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
       return { error: 'Já existe uma categoria com este nome' }
@@ -25,7 +27,7 @@ export async function createSupplierCategory(data: SupplierCategoryFormValues): 
   }
 
   revalidatePath('/supplier-categories')
-  return { success: 'Categoria criada com sucesso.' }
+  return { success: 'Categoria criada com sucesso.', category: created }
 }
 
 export async function updateSupplierCategory(id: string, data: SupplierCategoryFormValues): Promise<ActionError | ActionSuccess> {
