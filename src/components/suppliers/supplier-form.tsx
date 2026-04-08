@@ -70,6 +70,24 @@ export function SupplierForm({ id, defaultValues, categories = [] }: SupplierFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-2xl">
+      <div className="flex items-center justify-between">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+          {isEditing ? 'Editar fornecedor' : 'Novo fornecedor'}
+        </h1>
+        {isEditing && (
+          <Controller
+            name="isActive"
+            control={control}
+            render={({ field }) => (
+              <div className="flex items-center gap-2">
+                <Switch id="isActive" checked={field.value} onCheckedChange={field.onChange} />
+                <label htmlFor="isActive" className="text-sm cursor-pointer">Ativo?</label>
+              </div>
+            )}
+          />
+        )}
+      </div>
+
       <FieldGroup>
         {/* Tipo */}
         <div className="grid grid-cols-12 gap-3">
@@ -287,22 +305,6 @@ export function SupplierForm({ id, defaultValues, categories = [] }: SupplierFor
           )}
         />
 
-        {isEditing && (
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Field orientation="horizontal">
-                <Switch
-                  id="isActive"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-                <FieldLabel htmlFor="isActive" className="cursor-pointer">Fornecedor ativo:</FieldLabel>
-              </Field>
-            )}
-          />
-        )}
       </FieldGroup>
 
       <FieldSeparator />

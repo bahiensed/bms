@@ -44,6 +44,24 @@ export function LicenseForm({ id, defaultValues }: LicenseFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-w-lg">
+      <div className="flex items-center justify-between">
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
+          {isEditing ? 'Editar licença' : 'Nova licença'}
+        </h1>
+        {isEditing && (
+          <Controller
+            name="isActive"
+            control={control}
+            render={({ field }) => (
+              <div className="flex items-center gap-2">
+                <Switch id="isActive" checked={field.value} onCheckedChange={field.onChange} />
+                <label htmlFor="isActive" className="text-sm cursor-pointer">Ativo?</label>
+              </div>
+            )}
+          />
+        )}
+      </div>
+
       <FieldGroup>
         <Controller
           name="component"
@@ -68,23 +86,6 @@ export function LicenseForm({ id, defaultValues }: LicenseFormProps) {
             </Field>
           )}
         />
-
-        {isEditing && (
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Field orientation="horizontal">
-                <Switch
-                  id="isActive"
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-                <FieldLabel htmlFor="isActive" className="cursor-pointer">Licença ativa:</FieldLabel>
-              </Field>
-            )}
-          />
-        )}
       </FieldGroup>
 
       {serverError && <FieldError>{serverError}</FieldError>}

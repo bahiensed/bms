@@ -8,11 +8,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
   if (!user) notFound()
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">
-        Editar usuário
-      </h1>
-      <UserForm
+    <UserForm
         id={id}
         defaultValues={{
           firstName:        user.firstName,
@@ -36,6 +32,5 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
           } : undefined,
         }}
       />
-    </div>
   )
 }
