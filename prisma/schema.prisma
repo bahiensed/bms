@@ -294,10 +294,16 @@ model Customer {
   notes                 String?
   isActive              Boolean    @default(true) @map("is_active")
 
-  moduleRecords    Boolean @default(false) @map("module_records")
-  modulePurchasing Boolean @default(false) @map("module_purchasing")
-  moduleInventory  Boolean @default(false) @map("module_inventory")
-  moduleFinance    Boolean @default(false) @map("module_finance")
+  moduleRecordsSuppliers    Boolean @default(false) @map("module_records_suppliers")
+  moduleRecordsProducts     Boolean @default(false) @map("module_records_products")
+  moduleRecordsServices     Boolean @default(false) @map("module_records_services")
+  moduleCategoriesSuppliers Boolean @default(false) @map("module_categories_suppliers")
+  moduleCategoriesProducts  Boolean @default(false) @map("module_categories_products")
+  moduleCategoriesServices  Boolean @default(false) @map("module_categories_services")
+  modulePurchasingProducts  Boolean @default(false) @map("module_purchasing_products")
+  modulePurchasingServices  Boolean @default(false) @map("module_purchasing_services")
+  moduleInventoryProducts   Boolean @default(false) @map("module_inventory_products")
+  moduleFinance             Boolean @default(false) @map("module_finance")
 
   categoryId String?           @map("category_id")
   category   CustomerCategory? @relation("CustomerCategory", fields: [categoryId], references: [id], onDelete: SetNull)

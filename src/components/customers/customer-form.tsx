@@ -382,44 +382,114 @@ export function CustomerForm({ id, defaultValues, categories = [] }: CustomerFor
 
       <p className="text-sm font-medium">Módulos do Sequoia</p>
       <p className="text-sm text-muted-foreground -mt-4">
-        Módulos sempre disponíveis não podem ser desativados.
+        Itens marcados em cinza são sempre acessíveis e não podem ser desativados.
       </p>
 
-      <div className="grid grid-cols-2 gap-3 max-w-sm">
-        {/* Always-on — disabled */}
+      {/* Always-on — 3 colunas, 2 linhas */}
+      <div className="grid grid-cols-3 gap-3 max-w-lg">
         {[
-          'Dashboard', 'Licenses', 'Customers', 'Sales', 'System',
+          'Dashboard', 'Buy Licenses', 'View Licenses',
+          'Customers', 'Sales',        'System',
         ].map((label) => (
           <label key={label} className="flex items-center gap-2 text-sm opacity-60 cursor-not-allowed">
             <Checkbox checked disabled />
             {label}
           </label>
         ))}
+      </div>
 
-        {/* Optional modules */}
+      {/* Records */}
+      <p className="text-sm font-medium mt-2">Records</p>
+      <div className="grid grid-cols-3 gap-3 max-w-lg">
         {(
           [
-            { name: 'moduleRecords',    label: 'Records'    },
-            { name: 'modulePurchasing', label: 'Purchasing' },
-            { name: 'moduleInventory',  label: 'Inventory'  },
-            { name: 'moduleFinance',    label: 'Finance'    },
+            { name: 'moduleRecordsSuppliers', label: 'Suppliers' },
+            { name: 'moduleRecordsProducts',  label: 'Products'  },
+            { name: 'moduleRecordsServices',  label: 'Services'  },
           ] as const
         ).map(({ name, label }) => (
-          <Controller
-            key={name}
-            name={name}
-            control={control}
-            render={({ field }) => (
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-                {label}
-              </label>
-            )}
-          />
+          <Controller key={name} name={name} control={control} render={({ field }) => (
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              {label}
+            </label>
+          )} />
         ))}
+        <label className="flex items-center gap-2 text-sm opacity-60 cursor-not-allowed">
+          <Checkbox checked disabled />
+          Customers
+        </label>
+      </div>
+
+      {/* Categories */}
+      <p className="text-sm font-medium mt-2">Categories</p>
+      <div className="grid grid-cols-3 gap-3 max-w-lg">
+        {(
+          [
+            { name: 'moduleCategoriesSuppliers', label: 'Supplier Cat.' },
+            { name: 'moduleCategoriesProducts',  label: 'Product Cat.'  },
+            { name: 'moduleCategoriesServices',  label: 'Service Cat.'  },
+          ] as const
+        ).map(({ name, label }) => (
+          <Controller key={name} name={name} control={control} render={({ field }) => (
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              {label}
+            </label>
+          )} />
+        ))}
+        <label className="flex items-center gap-2 text-sm opacity-60 cursor-not-allowed">
+          <Checkbox checked disabled />
+          Customer Cat.
+        </label>
+      </div>
+
+      {/* Purchasing */}
+      <p className="text-sm font-medium mt-2">Purchasing</p>
+      <div className="grid grid-cols-3 gap-3 max-w-lg">
+        <label className="flex items-center gap-2 text-sm opacity-60 cursor-not-allowed">
+          <Checkbox checked disabled />
+          Buy Licenses
+        </label>
+        {(
+          [
+            { name: 'modulePurchasingProducts', label: 'Products' },
+            { name: 'modulePurchasingServices', label: 'Services' },
+          ] as const
+        ).map(({ name, label }) => (
+          <Controller key={name} name={name} control={control} render={({ field }) => (
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              {label}
+            </label>
+          )} />
+        ))}
+      </div>
+
+      {/* Inventory */}
+      <p className="text-sm font-medium mt-2">Inventory</p>
+      <div className="grid grid-cols-3 gap-3 max-w-lg">
+        <label className="flex items-center gap-2 text-sm opacity-60 cursor-not-allowed">
+          <Checkbox checked disabled />
+          View Licenses
+        </label>
+        <Controller name="moduleInventoryProducts" control={control} render={({ field }) => (
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+            Products
+          </label>
+        )} />
+      </div>
+
+      {/* Finance */}
+      <p className="text-sm font-medium mt-2">Finance</p>
+      <div className="grid grid-cols-3 gap-3 max-w-lg">
+        <Controller name="moduleFinance" control={control} render={({ field }) => (
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+            Finance
+          </label>
+        )} />
       </div>
 
       {serverError && <FieldError>{serverError}</FieldError>}
