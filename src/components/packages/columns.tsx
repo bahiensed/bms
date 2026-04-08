@@ -5,7 +5,6 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal } from 'lucide-react'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
-import { Decimal } from '@/generated/prisma/client/runtime/library'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -24,7 +23,7 @@ export type PackageRow = {
   id: string
   name: string
   description: string | null
-  price: Decimal
+  price: number
   quantity: number
   isActive: boolean
   createdAt: Date
@@ -100,7 +99,7 @@ export const packageColumns: ColumnDef<PackageRow>[] = [
   {
     accessorKey: 'price',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Preço" />,
-    cell: ({ row }) => usd.format(Number(row.original.price)),
+    cell: ({ row }) => usd.format(row.original.price),
   },
   {
     accessorKey: 'description',

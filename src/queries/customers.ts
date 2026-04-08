@@ -52,7 +52,21 @@ export async function getCustomer(id: string) {
       notes:                 true,
       categoryId:            true,
       isActive:              true,
+      moduleRecords:         true,
+      modulePurchasing:      true,
+      moduleInventory:       true,
+      moduleFinance:         true,
       address:               { select: addressSelect },
     },
+  })
+}
+
+export async function getActiveCustomers() {
+  await verifySession()
+
+  return prisma.customer.findMany({
+    where:   { isActive: true },
+    select:  { id: true, name: true },
+    orderBy: { name: 'asc' },
   })
 }

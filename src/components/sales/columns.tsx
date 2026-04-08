@@ -1,0 +1,104 @@
+'use client'
+
+import type { ColumnDef } from '@tanstack/react-table'
+import { MoreHorizontal } from 'lucide-react'
+import { useTransition } from 'react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { DataTableColumnHeader } from '@/components/ui/data-table-column-header'
+import { ConfirmDeleteDialog } from '@/components/ui/confirm-delete-dialog'
+import { deleteSale } from '@/actions/sale.actions'
+
+export type SaleRow = {
+  id: number
+  quantity: number
+  soldAt: Date
+  package:  { name: string; price: number; quantity: number }
+  customer: { name: string }
+  soldBy:   { firstName: string; lastName: string }
+}
+
+function ActionsCell({ row }: { row: { original: SaleRow } }) {
+  const [isPending, startTransition] = useTransition()
+  const sale = row.original
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" disabled={isPending}>
+          <MoreHorizontal className="h-4 w-4" />
+          <span className="sr-only">Abrir menu</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Ações</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <ConfirmDeleteDialog
+          isPending={isPending}
+          description={`A venda do package "${sale.package.name}" para "${sale.customer.name}" será excluída e as licenças serão devolvidas ao inventário.`}
+          onConfirm={() => startTransition(async () => {
+            const result = await deleteSale(sale.id)
+            if (result?.error) toast.error(result.error)
+            else toast.success('Venda excluída com sucesso.')
+          })}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+const usd  = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+const date = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' })
+
+export const saleColumns: ColumnDef<SaleRow>[] = [
+  {
+    id: 'package',
+    accessorFn: (row) => row.package.name,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Package" />,
+    cell: ({ row }) => row.original.package.name,
+  },
+  {
+    id: 'customer',
+    accessorFn: (row) => row.customer.name,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Customer" />,
+    cell: ({ row }) => row.original.customer.name,
+  },
+  {
+    accessorKey: 'quantity',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Qtd. Packages" />,
+    cell: ({ row }) => row.original.quantity,
+  },
+  {
+    id: 'totalLicenses',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Licenças totais" />,
+    cell: ({ row }) => row.original.quantity * row.original.package.quantity,
+  },
+  {
+    id: 'totalPrice',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Valor total" />,
+    cell: ({ row }) => usd.format(row.original.quantity * row.original.package.price),
+  },
+  {
+    accessorKey: 'soldAt',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Data" />,
+    cell: ({ row }) => date.format(new Date(row.original.soldAt)),
+  },
+  {
+    id: 'seller',
+    accessorFn: (row) => `${row.soldBy.firstName} ${row.soldBy.lastName}`,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Vendedor" />,
+    cell: ({ row }) => `${row.original.soldBy.firstName} ${row.original.soldBy.lastName}`,
+  },
+  {
+    id: 'actions',
+    enableHiding: false,
+    cell: ({ row }) => <ActionsCell row={row} />,
+  },
+]

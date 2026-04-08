@@ -6,7 +6,7 @@ import { verifySession } from '@/lib/dal'
 export async function getPackages() {
   await verifySession()
 
-  return prisma.package.findMany({
+  const rows = await prisma.package.findMany({
     select: {
       id:          true,
       name:        true,
@@ -21,6 +21,20 @@ export async function getPackages() {
     },
     orderBy: { name: 'asc' },
   })
+
+  return rows.map(r => ({ ...r, price: Number(r.price) }))
+}
+
+export async function getActivePackages() {
+  await verifySession()
+
+  const rows = await prisma.package.findMany({
+    where:   { isActive: true },
+    select:  { id: true, name: true, price: true, quantity: true },
+    orderBy: { name: 'asc' },
+  })
+
+  return rows.map(r => ({ ...r, price: Number(r.price) }))
 }
 
 export async function getPackage(id: string) {
