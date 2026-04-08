@@ -4,6 +4,7 @@ import {
   BuildingIcon,
   ChartNoAxesCombined,
   FactoryIcon,
+  FolderIcon,
   HandCoinsIcon,
   IdCardIcon,
   LayoutDashboard,
@@ -51,46 +52,19 @@ export const system = [
 ]
 
 export const records = [
-  {
-    name: 'Licenses',
-    url: '/licenses',
-    icon: QrCodeIcon,
-  },
-  {
-    name: 'Packages',
-    url: '/packages',
-    icon: PackageIcon,
-  },
-  {
-    name: 'Suppliers',
-    url: '/suppliers',
-    icon: FactoryIcon,
-  },
-  {
-    name: 'Supplier Categories',
-    url: '/supplier-categories',
-    icon: TagIcon,
-  },
-  {
-    name: 'Products',
-    url: '/products',
-    icon: BoxIcon,
-  },
-  {
-    name: 'Services',
-    url: '/services',
-    icon: ToolboxIcon,
-  },
-  {
-    name: 'Customers',
-    url: '/customers',
-    icon: UsersIcon,
-  },
-  {
-    name: 'Customer Categories',
-    url: '/customer-categories',
-    icon: TagIcon,
-  },
+  { name: 'Licenses',  url: '/licenses',  icon: QrCodeIcon  },
+  { name: 'Packages',  url: '/packages',  icon: PackageIcon },
+  { name: 'Suppliers', url: '/suppliers', icon: FactoryIcon },
+  { name: 'Products',  url: '/products',  icon: BoxIcon     },
+  { name: 'Services',  url: '/services',  icon: ToolboxIcon },
+  { name: 'Customers', url: '/customers', icon: UsersIcon   },
+]
+
+export const categories = [
+  { name: 'Supplier Categories', url: '/supplier-categories', icon: TagIcon    },
+  { name: 'Product Categories',  url: '/product-categories',  icon: FolderIcon },
+  { name: 'Service Categories',  url: '/service-categories',  icon: FolderIcon },
+  { name: 'Customer Categories', url: '/customer-categories', icon: TagIcon    },
 ]
 
 export const purchasing = [
@@ -136,10 +110,11 @@ export const finance = [
 ]
 
 export const groups = [
-  { label: 'System',     items: system     },
-  { label: 'Records',    items: records    },
-  { label: 'Purchasing', items: purchasing },
-  { label: 'Inventory',  items: inventory  },
-  { label: 'Sales',      items: sales      },
-  { label: 'Finance',    items: finance    },
+  { label: 'System',      items: system     },
+  { label: 'Records',     items: records    },
+  { label: 'Categories',  items: categories },
+  { label: 'Purchasing',  items: purchasing },
+  { label: 'Inventory',   items: inventory  },
+  { label: 'Sales',       items: sales      },
+  { label: 'Finance',     items: finance    },
 ]
