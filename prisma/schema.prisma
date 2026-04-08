@@ -40,7 +40,8 @@ model License {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
-  packages Package[]
+  packages         Package[]
+  customerLicenses CustomerLicense[]
 
   @@map("licenses")
 }
@@ -59,7 +60,46 @@ model Package {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  sales Sale[]
+
   @@map("packages")
+}
+
+model Sale {
+  id       Int      @id @default(autoincrement())
+  quantity Int      @default(1)
+  soldAt   DateTime @map("sold_at")
+
+  packageId  String   @map("package_id")
+  package    Package  @relation(fields: [packageId], references: [id], onDelete: Restrict)
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  soldById String @map("sold_by_id")
+  soldBy   User   @relation(fields: [soldById], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sales")
+}
+
+model CustomerLicense {
+  id       String @id @default(cuid())
+  quantity Int    @default(0)
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  licenseId String  @map("license_id")
+  license   License @relation(fields: [licenseId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([customerId, licenseId])
+  @@map("customer_licenses")
 }
 
 // ─── Auth tokens ─────────────────────────────────────────────────────────────
@@ -166,6 +206,7 @@ model User {
 
   emailTokens         EmailToken[]
   passwordResetTokens PasswordResetToken[]
+  sales               Sale[]
 
   @@map("users")
 }
@@ -275,6 +316,8 @@ model Customer {
   suppliers    Supplier[]         @relation("SupplierTenant")
   supplierCats SupplierCategory[] @relation("SupplierCategoryTenant")
   customerCats CustomerCategory[] @relation("CustomerCategoryTenant")
+  sales        Sale[]
+  licenses     CustomerLicense[]
 
   @@map("customers")
 }
